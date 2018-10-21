@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="cloneDetectorBottom"
+            class="userInterface.ResultView"
+            icon="icons/page_copy.png"
+            id="CloneDetector.resultView"
+            name="Clone Detector"
+            restorable="true">
+      </view>
+      <category
+            id="cloneDetectorBottom"
+            name="Clone Detector">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="clonedetector.PluginStartup">
+      </startup>
+   </extension>
+
+	<extension point="org.eclipse.ui.editors.annotationTypes">
+		<type markerSeverity="0"
+			super="org.eclipse.ui.workbench.texteditor.info"
+			name="edu.uci.ics.mondego.clonedetection" markerType="edu.uci.ics.mondego.clonedetection.marker"/>                                       
+	</extension>
+
+	<extension point="org.eclipse.ui.editors.markerAnnotationSpecification"
+		id="myannotationspecification" name="MyAnnotation">
+	<specification annotationType="edu.uci.ics.mondego.clonedetection.green"
+			label="MyAnnotation"
+			icon="icons/marker_green.gif"
+			overviewRulerPreferenceKey="clruler"
+			overviewRulerPreferenceValue="true"
+			colorPreferenceKey="clcolor"
+			colorPreferenceValue="255,255,0"
+			textPreferenceKey="cltext"
+			textPreferenceValue="true"
+			verticalRulerPreferenceKey="clvertical"
+			verticalRulerPreferenceValue="true"
+			textStylePreferenceKey="clstyle"
+			textStylePreferenceValue="BOX">
+	</specification>
+	</extension>
+	
+	<extension point="org.eclipse.ui.editors.markerAnnotationSpecification"
+		id="myannotationspecification" name="MyAnnotation">
+	<specification annotationType="edu.uci.ics.mondego.clonedetection.orange"
+			label="MyAnnotation"
+			icon="icons/marker_orange.gif"
+			overviewRulerPreferenceKey="clruler"
+			overviewRulerPreferenceValue="true"
+			colorPreferenceKey="clcolor"
+			colorPreferenceValue="255,255,0"
+			textPreferenceKey="cltext"
+			textPreferenceValue="true"
+			verticalRulerPreferenceKey="clvertical"
+			verticalRulerPreferenceValue="true"
+			textStylePreferenceKey="clstyle"
+			textStylePreferenceValue="BOX">
+	</specification>
+	</extension>
+	
+	<extension point="org.eclipse.ui.editors.markerAnnotationSpecification"
+		id="myannotationspecification" name="MyAnnotation">
+	<specification annotationType="edu.uci.ics.mondego.clonedetection.red"
+			label="MyAnnotation"
+			icon="icons/marker_red.gif"
+			overviewRulerPreferenceKey="clruler"
+			overviewRulerPreferenceValue="true"
+			colorPreferenceKey="clcolor"
+			colorPreferenceValue="255,255,0"
+			textPreferenceKey="cltext"
+			textPreferenceValue="true"
+			verticalRulerPreferenceKey="clvertical"
+			verticalRulerPreferenceValue="true"
+			textStylePreferenceKey="clstyle"
+			textStylePreferenceValue="BOX">
+	</specification>
+	</extension>
+</plugin>

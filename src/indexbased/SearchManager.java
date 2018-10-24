@@ -225,7 +225,7 @@ public class SearchManager {
     public List<String> getResultFileList() {
     	return this.searchResult;
     }
-    /*
+    
     public static void main(String[] args) throws IOException, ParseException,
             InterruptedException {
         long start_time = System.currentTimeMillis();
@@ -329,12 +329,11 @@ public class SearchManager {
         } catch (DatatypeConfigurationException e1) {
             e1.printStackTrace();
         }
-        */
+        
         /*
          * System.out.println( "total run time: " + cal.get(Calendar.HOUR)+
          * "::"+ cal.get(Calendar.MINUTE)+ "::"+ cal.get(Calendar.SECOND));
          */
-    /*
         System.out.println("number of clone pairs detected: "
                 + SearchManager.clonePairsCount);
         searchManager.timeTotal = end_time - start_time;
@@ -346,7 +345,6 @@ public class SearchManager {
             System.out.println("exception caught in main " + e.getMessage());
         }
     }
-	*/
     
     
     // changed to public - sarah

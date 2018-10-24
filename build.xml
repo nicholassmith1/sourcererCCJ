@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="CodeCloneDetection" basedir="." default="compile">
+
+    <property name="src.dir"     value="src"/>
+    <property name="build.dir"   value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="jar.dir"     value="dist"/>	
+	<property name="lib"  value="lib"/>
+    <property name="dist.dir" value="dist"/>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${jar.dir}"/>
+    </target>
+
+	
+	
+	<target name="compile">
+	        <mkdir dir="${classes.dir}"/>
+	        <mkdir dir="${jar.dir}"/>
+	        <javac encoding="utf-8" source="1.7" target="1.7" debug ="true" includeantruntime="false" sourcepath="" srcdir="${src.dir}" destdir="${classes.dir}">
+	        	<include name="indexbased/*.java"/>
+	        	<include name="models/*.java"/>
+	        	<include name="noindex/*.java"/>
+	        	<include name="utility/*.java"/>
+	        	<include name="validation/*.java"/>
+	        	<include name="postprocessing/*.java"/>
+	            <classpath>
+	               <fileset dir="${lib}">
+	                  <include name="**/*.jar" />
+	               </fileset>
+	         </classpath>
+	         </javac>
+	    </target>
+	
+<!--
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${jar.dir}"/>
+        <javac encoding="utf-8" source="1.7" target="1.7" debug ="true" includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}">
+            <classpath>
+               <fileset dir="${lib}">
+                  <include name="**/*.jar" />
+               </fileset>
+         </classpath>
+         </javac>
+    </target>
+-->
+
+    <target name="jarTest" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/sourcererCC.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="validation.TestGson"/>
+            </manifest>
+        </jar>
+    </target>
+
+
+    <target name="runTest" depends="jarTest">
+        <java jar="${jar.dir}/sourcererCC.jar" fork="true"/>
+    </target>
+	
+</project>

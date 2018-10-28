@@ -75,6 +75,12 @@ public class TermSearcher {
 												.parseInt(SearchManager.searcher
 														.getDocument(docId).get("size"));
 									}
+									
+									System.out.println("TermSearcher " + this.simMap.get(docId).similarity
+											+ " " + this.querySize + " " + queryTermsSeen + " "
+											+ simInfo.candidateSize + " " + simInfo.candidateMatchPosition
+											+ " " + this.computedThreshold);
+									
 									if (!Util.isSatisfyPosFilter(
 											this.simMap.get(docId).similarity,
 											this.querySize, queryTermsSeen,
@@ -84,6 +90,8 @@ public class TermSearcher {
 									//	System.out.println("before removing in simmap "+ Util.debug_thread());
 										this.simMap.remove(docId);
 										//System.out.println("after removing in simmap "+ Util.debug_thread());
+									} else {
+										System.out.println("+++++++ success!");
 									}
 								}
 							}else{

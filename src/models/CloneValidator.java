@@ -21,12 +21,21 @@ public class CloneValidator implements IListener, Runnable {
 
     private void validate(CandidatePair candidatePair)
             throws InterruptedException {
+    	
+    	
+    	System.out.println("_________________ CloneValidator");
+    	
+    	
         if (candidatePair.candidateTokens != null
                 && candidatePair.candidateTokens.trim().length() > 0) {
             int similarity = this.updateSimilarity(candidatePair.queryBlock,
                     candidatePair.candidateTokens,
                     candidatePair.computedThreshold,
                     candidatePair.candidateSize, candidatePair.simInfo);
+            
+            
+            System.out.println("simularity = " + similarity);
+            
             if (similarity > 0) {
                 ClonePair cp = new ClonePair(candidatePair.queryBlock.getId(),
                         candidatePair.candidateId);

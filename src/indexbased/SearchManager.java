@@ -226,6 +226,7 @@ public class SearchManager {
     	return this.searchResult;
     }
     
+    // TODO - NISM FIXME
     public static void main(String[] args) throws IOException, ParseException,
             InterruptedException {
         long start_time = System.currentTimeMillis();
@@ -247,7 +248,7 @@ public class SearchManager {
             params[7] = properties.getProperty("QCQ_SIZE");
             params[8] = properties.getProperty("VCQ_SIZE");
             params[9] = properties.getProperty("RCQ_SIZE");
-            searchManager = new SearchManager(params);
+            searchManager = new SearchManager(params[0]);  // NISM - this was broken and preventing compilation, just picked a string
         } catch (IOException e) {
             System.out.println("ERROR READING PROPERTIES FILE, "
                     + e.getMessage());
@@ -392,6 +393,33 @@ public class SearchManager {
         Util.writeToFile(this.outputWriter, header, true);
     }
     
+    public void genReportV2() {  // NISM -added to gain visability
+        String header = "";
+        if (!this.appendToExistingFile) {
+            header = "index_time, "
+                    + "globalTokenPositionCreationTime,num_candidates, "
+                    + "num_clonePairs, total_run_time, searchTime,"
+                    + "timeSpentInSearchingCandidates,timeSpentInProcessResult,"
+                    + "operation,sortTime_during_indexing\n";
+        }
+        header += this.timeIndexing + ",";
+        header += this.timeGlobalTokenPositionCreation + ",";
+        header += SearchManager.numCandidates + ",";
+        header += SearchManager.clonePairsCount + ",";
+        header += this.timeTotal + ",";
+        header += this.timeSearch + ",";
+        header += SearchManager.timeSpentInSearchingCandidates + ",";
+        header += this.timeSpentInProcessResult + ",";
+        if (this.action.equalsIgnoreCase("index")) {
+            header += this.action + ",";
+            header += this.bagsSortTime;
+        } else {
+            header += this.action;
+        }
+
+        System.out.println(header);
+    }
+    
     //changed to public - sarah
     public void doIndex() throws IOException, ParseException {
         KeywordAnalyzer keywordAnalyzer = new KeywordAnalyzer();
@@ -500,7 +528,7 @@ public class SearchManager {
         }
     }
 
-    private void findCandidates() throws InterruptedException {
+    public void findCandidates() throws InterruptedException {
         long start_time = System.currentTimeMillis();
         try {
             File queryDirectory = this.getQueryDirectory();

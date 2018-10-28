@@ -56,6 +56,13 @@ public class CodeSearcher {
 
     public void search(QueryBlock queryBlock, TermSearcher termSearcher)
             throws IOException {
+    	
+    	System.out.println("CodeSearcher:search " + this.indexDir + " " + this.field);
+    	for (Entry<String, TokenInfo> entry : queryBlock.getPrefixMap().entrySet()) {
+    		System.out.println(entry.getKey() + ", " + entry.getValue().toString());
+    	}
+    	
+    	
         // List<String> tfsToRemove = new ArrayList<String>();
         termSearcher.setReader(this.reader);
         // System.out.println("setting reader: "+this.reader +

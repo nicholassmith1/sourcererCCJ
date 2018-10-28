@@ -13,6 +13,7 @@
 		<delete dir="${jar.dir}"/>
 	</target>
 
+	<!--
 	<target name="compile_search">
 		<mkdir dir="${classes.dir}" />
 		<mkdir dir="${jar.dir}" />
@@ -30,12 +31,26 @@
 			</classpath>
 		</javac>
 	</target>
-
-	<target name="compile_tokenizer">
+	-->
+	
+	<target name="compile_cyclone">
 		<mkdir dir="${classes.dir}" />
 		<mkdir dir="${jar.dir}" />
 		<javac encoding="utf-8" source="1.7" target="1.7" debug="true" includeantruntime="false" sourcepath="" srcdir="${src.dir}" destdir="${classes.dir}">
+			<include name="cyClone/CyClone.java" />
+			<include name="cyClone/Parser.java" />
 			<include name="astParser/Tokenizer.java" />
+			
+			<include name="antlr/*.java" />
+			<include name="antlr/grammar/*.java" />
+			
+			<include name="indexbased/*.java" />
+			<include name="models/*.java" />
+			<include name="noindex/*.java" />
+			<include name="utility/*.java" />
+			<include name="validation/*.java" />
+			<include name="postprocessing/*.java" />
+			
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
@@ -44,6 +59,7 @@
 		</javac>
 	</target>
 
+	<!--
 	<target name="compile_cyclone">
 		<mkdir dir="${classes.dir}" />
 		<mkdir dir="${jar.dir}" />
@@ -65,16 +81,19 @@
 			</manifest>
 		</jar>
 	</target>
+	-->
 
-	<target name="jar_tokenizer" depends="compile_tokenizer">
+	<target name="jar_cyclone" depends="compile_cyclone">
 		<mkdir dir="${jar.dir}"/>
-		<jar destfile="${jar.dir}/tokenizer.jar" basedir="${classes.dir}">
+		<jar destfile="${jar.dir}/CyClone.jar" basedir="${classes.dir}">
+			<zipgroupfileset dir="${lib}" includes="**/*.jar" />
 			<manifest>
-				<attribute name="Main-Class" value="astParser.Tokenizer"/>
+				<attribute name="Main-Class" value="cyClone.CyClone"/>
 			</manifest>
 		</jar>
 	</target>
 
+	<!--
 	<target name="jar_cyclone" depends="compile_cyclone">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.dir}/CyClone.jar" basedir="${classes.dir}">
@@ -84,12 +103,18 @@
 			</manifest>
 		</jar>
 	</target>
+	-->
 
-
+	<!--
 	<target name="runTest" depends="jar_search">
 		<java jar="${jar.dir}/tokenizer.jar" fork="true"/>
 	</target>
+	-->
 
+	<!--
 	<target name="main" depends="clean, jar_search, jar_tokenizer"/>
+	-->
+	
+	<target name="cyclone" depends="clean, jar_cyclone"/>
 
 </project>

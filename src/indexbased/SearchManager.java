@@ -418,6 +418,12 @@ public class SearchManager {
         }
 
         System.out.println(header);
+        
+//        System.out.println(x);
+//        for (String s : this.searchResult) {
+//        	
+//        }
+        
     }
     
     //changed to public - sarah

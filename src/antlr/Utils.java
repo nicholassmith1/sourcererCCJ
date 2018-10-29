@@ -75,8 +75,8 @@ public class Utils {
 			Token start = ctx.getStart();
 			Token stop = ctx.getStop();
 			
-			System.out.println(start.getLine() + " " + start.getCharPositionInLine());
-			System.out.println(stop.getLine() + " " + stop.getCharPositionInLine());
+//			System.out.println(start.getLine() + " " + start.getCharPositionInLine());
+//			System.out.println(stop.getLine() + " " + stop.getCharPositionInLine());
 			
 			
 			/* How do I translate a line number and char offset into file positions? */
@@ -92,7 +92,8 @@ public class Utils {
 			
 			key = ctx.methodHeader().getText();
 			
-			System.out.println(key);
+			/* TODO - maybe useful */
+//			System.out.println(key);
 			methods.put(key, value);
 			
 			

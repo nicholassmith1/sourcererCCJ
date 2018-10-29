@@ -1,8 +1,10 @@
 package cyClone;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -153,7 +155,8 @@ public class Parser {
 		String baseString = classPath + '#' + functionKey;
 		String retString = "";
 
-		for (int i = 1; i < baseString.length(); i++) {
+//		for (int i = 1; i < baseString.length(); i++) {
+		for (int i = 0; i < baseString.length(); i++) {
 			if (baseString.charAt(i) == '\r')
 				continue;
 			if (baseString.charAt(i) == '/')
@@ -242,6 +245,40 @@ public class Parser {
 	 * @param outputLocation
 	 */
 	public void printMethod(String classPath, String methodKey, String methodBody, String outputLocation) {
+		
+		String dataFileName = getFileName(classPath, methodKey);
+		File file = new File(outputLocation + dataFileName);
+		
+//		System.out.println("write to " + outputLocation + dataFileName + ":: " + classPath + " :: " + methodKey);
+		
+		/* Ensure path and file exist */
+		if (file.getParentFile() != null) {
+			file.getParentFile().mkdirs();
+		}
+		
+		if (!file.exists()) {
+			try {
+//				System.out.println("CREATE FILE");
+				file.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+//		System.out.println(">>>>" + file.getAbsolutePath());
+		
+		/* Generate partial index */
+		try (FileWriter dataFile = new FileWriter(file);
+			BufferedWriter out = new BufferedWriter(dataFile);) {
+			this.printMethod2(classPath, methodKey, methodBody, out);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void printMethod2(String classPath, String methodKey, String methodBody, Writer out) {
 		final int MIN_TOKEN_IN_METHOD = 25;
 
 		if (isNotNullNotEmptyNotWhiteSpaceOnlyByJava(methodBody)) {
@@ -256,12 +293,13 @@ public class Parser {
 				}
 
 				if (sb.length() > 0) {
-					FileWriter dataFile;
+//					FileWriter dataFile;
 					try {
-						dataFile = new FileWriter(outputLocation + dataFileName);
-						dataFile.write(sb.substring(0, sb.length() - 1));
-						dataFile.flush();
-						dataFile.close();
+						out.write(sb.substring(0, sb.length() - 1));
+//						dataFile = new FileWriter(outputLocation + dataFileName);
+//						dataFile.write(sb.substring(0, sb.length() - 1));
+//						dataFile.flush();
+//						dataFile.close();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

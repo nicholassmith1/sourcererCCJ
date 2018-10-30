@@ -44,12 +44,12 @@ public class Utils {
 	 * We make no guarantees that this code is fit for any purpose. 
 	 * Visit http://www.pragmaticprogrammer.com/titles/tpantlr2 for more book information.
 	***/
-	public static class ExtractMethodListener extends Java8BaseListener {
-		Java8Parser parser;
+	public static class ExtractMethodListener extends JavaParserBaseListener {
+		JavaParser parser;
 		HashMap<String, String> methods;
 //		File
 
-		public ExtractMethodListener(Java8Parser parser) {
+		public ExtractMethodListener(JavaParser parser) {
 			this.parser = parser;
 			methods = new HashMap<String, String>();
 		}
@@ -64,7 +64,7 @@ public class Utils {
 
 		/** Listen to matches of methodDeclaration */
 		@Override
-		public void enterMethodDeclaration(Java8Parser.MethodDeclarationContext ctx) {
+		public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
 //			System.out.println(">>>>>>>>>>>>>>> Discovered method!");
 //			System.out.print(ctx.getStart().getText());
 //			
@@ -89,8 +89,8 @@ public class Utils {
 			
 			String key;
 			String value = stop.getInputStream().getText(new Interval(start.getStartIndex(), stop.getStopIndex()));
-			
-			key = ctx.methodHeader().getText();
+
+			key = ctx.IDENTIFIER().getText();
 			
 			/* TODO - maybe useful */
 //			System.out.println(key);
@@ -125,9 +125,9 @@ public class Utils {
 //		// not sure why this seems broken
 //		input = CharStream.fromFileName(inputFile);
 		
-		Java8Lexer lexer = new Java8Lexer(input);
+		JavaLexer lexer = new JavaLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		Java8Parser parser = new Java8Parser(tokens);
+		JavaParser parser = new JavaParser(tokens);
 		ParserRuleContext tree = parser.compilationUnit(); // parse
 		 
 		ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker

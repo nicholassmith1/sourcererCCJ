@@ -23,7 +23,8 @@ To generate new grammar:
 1. find or create grammar specification (https://github.com/antlr/grammars-v4) and add to grammar/
 2. Generate the specific lexer and parser in the correct location with correct package (https://stackoverflow.com/questions/1655854/how-to-specify-a-target-package-for-antlr)
 
-	$ java -cp lib/antlr-4.7.1-complete.jar org.antlr.v4.Tool -package antlr.grammar grammar/Java8.g4 -o src/antlr/
+	$ java -cp lib/antlr-4.7.1-complete.jar org.antlr.v4.Tool -package antlr.grammar grammar/JavaLexer.g4 -o src/antlr/
+	$ java -cp lib/antlr-4.7.1-complete.jar org.antlr.v4.Tool -package antlr.grammar -lib src/antlr/grammar/ grammar/JavaParser.g4 -o src/antlr/
 
 3. Add produced files to git repo
 4. ??? connect to antlr.utils somehow ???

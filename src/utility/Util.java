@@ -22,12 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import indexbased.SearchManager;
 import indexbased.TermSorter;
 import models.Bag;
 import models.TokenFrequency;
@@ -44,6 +47,11 @@ public class Util {
     public static final String FWD_INDEX_DIR = "fwdindex";
     public static final String INDEX_DIR_NO_FILTER = "index_nofilter";
 
+    private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
+    static {
+    	LOGGER.setLevel(Level.WARNING);
+    }
+    
     /**
      * generates a random integer
      * 
@@ -204,7 +212,7 @@ public class Util {
 
     public static void sortBag(Bag bag) {
         List<TokenFrequency> bagAsList = new ArrayList<TokenFrequency>(bag);
-        System.out.println("sorting, size of gtpm: " + TermSorter.globalTokenPositionMap.size());
+        LOGGER.info("sorting, size of gtpm: " + TermSorter.globalTokenPositionMap.size());
         Collections.sort(bagAsList, new Comparator<TokenFrequency>() {
             public int compare(TokenFrequency tfFirst, TokenFrequency tfSecond) {
                 long position1 = 0;
@@ -214,7 +222,7 @@ public class Util {
                             .getToken().getValue());
                 } catch (Exception e) {
                     position1 = -1;
-                    System.out.println("Exception in sort "
+                    LOGGER.severe("Exception in sort "
                             + tfFirst.getToken().getValue());
                 }
                 try {
@@ -222,7 +230,7 @@ public class Util {
                             .getToken().getValue());
                 } catch (Exception e) {
                     position2 = -1;
-                    System.out.println("Exception in sort "
+                    LOGGER.severe("Exception in sort "
                             + tfSecond.getToken().getValue());
                 }
                 if (position1 - position2 != 0) {

@@ -9,12 +9,19 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import utility.Util;
 
 public class InputGen {
     private List<String> methodBlocks;
     private Writer queryBlockWriter;
+    
+    private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
+    static {
+    	LOGGER.setLevel(Level.WARNING);
+    }
 
     public InputGen() {
         this.methodBlocks = new ArrayList<String>();
@@ -29,7 +36,7 @@ public class InputGen {
     private void genInputFile() {
         File datasetDir = new File(SearchManager.DATASET_DIR);
         if (datasetDir.isDirectory()) {
-            System.out.println("Directory: " + datasetDir.getName());
+            LOGGER.info("Directory: " + datasetDir.getName());
             // populate methodsBlocksLIst
             for (File inputFile : datasetDir.listFiles()) {
                 this.populateMethodBlocksList(inputFile);
@@ -44,7 +51,7 @@ public class InputGen {
     private void createQueryFile() {
         int min = 0;
         int max = this.methodBlocks.size();
-        System.out.println(min + " : "+ max);
+        LOGGER.info(min + " : "+ max);
         Random rand = new Random();
         for (int i = 0; i < 500; i++) {
             int randomNum = rand.nextInt((max - min) + 1) + min;
@@ -57,7 +64,7 @@ public class InputGen {
 
     private void populateMethodBlocksList(File inputFile) {
         BufferedReader br = null;
-        System.out.println("file: " + inputFile.getName());
+        LOGGER.info("file: " + inputFile.getName());
         try {
             br = new BufferedReader(new FileReader(inputFile));
             String line;

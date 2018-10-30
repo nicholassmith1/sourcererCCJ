@@ -8,6 +8,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableSortedMap;
@@ -30,6 +32,11 @@ public class TermSorter {
     public static String SORTED_FILES_DIR = "output/sortedFiles";
     public static Map<String, Integer> globalTokenPositionMap;
     public String GTPMfilename;
+    
+    private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
+    static {
+    	LOGGER.setLevel(Level.WARNING);
+    }
 
     public TermSorter() {
         TermSorter.wordFreq = new HashMap<String, Long>();
@@ -50,11 +57,11 @@ public class TermSorter {
         File gptmFile = new File(this.GTPMfilename);
         if (false && gptmFile.exists()) {
             TermSorter.globalTokenPositionMap = Util.readJsonStream(this.GTPMfilename);
-            System.out.println("search size of GTPM: " + TermSorter.globalTokenPositionMap.size());
+            LOGGER.info("search size of GTPM: " + TermSorter.globalTokenPositionMap.size());
         } else {
             File datasetDir = new File(dir);
             if (datasetDir.isDirectory()) {
-                System.out.println("Directory: " + datasetDir.getAbsolutePath());
+            	LOGGER.info("Directory: " + datasetDir.getAbsolutePath());
                 for (File inputFile : datasetDir.listFiles()) {
                     this.populateWordFreqMap(inputFile);
                 }
@@ -70,12 +77,12 @@ public class TermSorter {
                             .put(entry.getKey(), count);
                     count++;
                 }
-                System.out.println("size of GTPM: "
+                LOGGER.info("size of GTPM: "
                         + TermSorter.globalTokenPositionMap.size());
                 TermSorter.wordFreq = null;
                 sortedMap = null;
             } else {
-                System.out.println("File: " + datasetDir.getName()
+                LOGGER.severe("File: " + datasetDir.getName()
                         + " is not a direcory. exiting now");
                 System.exit(1);
             }

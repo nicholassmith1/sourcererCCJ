@@ -50,6 +50,9 @@ import noindex.CloneHelper;
 import utility.Util;
 import validation.TestGson;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * @author vaibhavsaini
  * 
@@ -121,6 +124,11 @@ public class SearchManager {
     public static boolean isStatusCounterOn;
     public static int printAfterEveryXQueries;
     public static String loggingMode;
+    
+    private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
+    static {
+    	LOGGER.setLevel(Level.WARNING);
+    }
 
     public SearchManager(String baseDir) throws IOException {
         SearchManager.clonePairsCount = 0;
@@ -146,7 +154,7 @@ public class SearchManager {
         this.qcq_size = QCQ_SIZE;
         this.vcq_size = VCQ_SIZE;
         this.rcq_size = RCQ_SIZE;
-        System.out.println("acton: " + this.action + System.lineSeparator()
+        LOGGER.info("acton: " + this.action + System.lineSeparator()
                 + "threshold: " + threshold + System.lineSeparator()
                 + "QBQ_THREADS: " + this.qbq_thread_count + ", QBQ_SIZE: "
                 + this.qbq_size + System.lineSeparator() + "QCQ_THREADS: "
@@ -184,9 +192,9 @@ public class SearchManager {
         
         this.rawDataDir = baseDir + "rawData" + "/";
         this.indexDir = baseDir + Util.INDEX_DIR + "/";
-        System.out.println("indexDir is:" + this.indexDir);
+        LOGGER.info("indexDir is:" + this.indexDir);
         this.fwdIndexDir = baseDir + Util.FWD_INDEX_DIR + "/"; 
-        System.out.println("fwdIndexDir is:" + this.fwdIndexDir);
+        LOGGER.info("fwdIndexDir is:" + this.fwdIndexDir);
         this.DATASET_DIR = this.rawDataDir;
         
     }
@@ -233,7 +241,7 @@ public class SearchManager {
         SearchManager searchManager = null;
         Properties properties = new Properties();
         FileInputStream fis = null;
-        System.out.println("reading Q values from properties file");
+        LOGGER.info("reading Q values from properties file");
         fis = new FileInputStream("sourcerer-cc.properties");
         try {
             properties.load(fis);
@@ -250,7 +258,7 @@ public class SearchManager {
             params[9] = properties.getProperty("RCQ_SIZE");
             searchManager = new SearchManager(params[0]);  // NISM - this was broken and preventing compilation, just picked a string
         } catch (IOException e) {
-            System.out.println("ERROR READING PROPERTIES FILE, "
+            LOGGER.severe("ERROR READING PROPERTIES FILE, "
                     + e.getMessage());
             System.exit(1);
         } finally {
@@ -297,16 +305,16 @@ public class SearchManager {
                         && SearchManager.queryCandidatesQueue.size() == 0
                         && SearchManager.verifyCandidateQueue.size() == 0
                         && SearchManager.reportCloneQueue.size() == 0) {
-                    System.out.println("shutting down QBQ, "
+                	LOGGER.info("shutting down QBQ, "
                             + (System.currentTimeMillis()));
                     SearchManager.queryBlockQueue.shutdown();
-                    System.out.println("shutting down QCQ, "
+                    LOGGER.info("shutting down QCQ, "
                             + System.currentTimeMillis());
                     SearchManager.queryCandidatesQueue.shutdown();
-                    System.out.println("shutting down VCQ, "
+                    LOGGER.info("shutting down VCQ, "
                             + System.currentTimeMillis());
                     SearchManager.verifyCandidateQueue.shutdown();
-                    System.out.println("shutting down RCQ, "
+                    LOGGER.info("shutting down RCQ, "
                             + System.currentTimeMillis());
                     SearchManager.reportCloneQueue.shutdown();
                     break;
@@ -323,10 +331,9 @@ public class SearchManager {
         try {
             Duration duration = DatatypeFactory.newInstance().newDuration(
                     end_time - start_time);
-            System.out.printf("Total run Time:  %02dh:%02dm:%02ds",
-                    duration.getDays() * 24 + duration.getHours(),
-                    duration.getMinutes(), duration.getSeconds());
-            System.out.println();
+            LOGGER.info("Total run time " + String.format("%02dh:%02dm:%02ds",
+                  duration.getDays() * 24 + duration.getHours(),
+                  duration.getMinutes(), duration.getSeconds()));
         } catch (DatatypeConfigurationException e1) {
             e1.printStackTrace();
         }
@@ -335,7 +342,7 @@ public class SearchManager {
          * System.out.println( "total run time: " + cal.get(Calendar.HOUR)+
          * "::"+ cal.get(Calendar.MINUTE)+ "::"+ cal.get(Calendar.SECOND));
          */
-        System.out.println("number of clone pairs detected: "
+        LOGGER.info("number of clone pairs detected: "
                 + SearchManager.clonePairsCount);
         searchManager.timeTotal = end_time - start_time;
         searchManager.genReport();
@@ -343,7 +350,7 @@ public class SearchManager {
         try {
             Util.closeOutputFile(SearchManager.clonesWriter);
         } catch (Exception e) {
-            System.out.println("exception caught in main " + e.getMessage());
+            LOGGER.severe("exception caught in main " + e.getMessage());
         }
     }
     
@@ -417,9 +424,8 @@ public class SearchManager {
             header += this.action;
         }
 
-        System.out.println(header);
-        
-        System.out.println("");
+        LOGGER.info(header);
+
         System.out.println("Discovered (" + SearchManager.clonePairsCount + ") clones:");
         for (String s : this.searchResult) {
         	System.out.println("\t" + s);
@@ -461,11 +467,9 @@ public class SearchManager {
             File datasetDir = new File(this.rawDataDir);
 
             if (datasetDir.isDirectory()) {
-//                System.out.println("Directory: " + datasetDir.getAbsolutePath());
                 BufferedReader br = null;
                 for (File inputFile : datasetDir.listFiles()) {
                     try {
-//                        System.out.println("indexing file : " + inputFile.getAbsolutePath());
                         br = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "UTF-8"));
                         String line;
                         while ((line = br.readLine()) != null && line.trim().length() > 0) {
@@ -492,11 +496,11 @@ public class SearchManager {
                     // fwdIndexer.createFwdIndex(inputFile);
                 }
             } else {
-                System.out.println("File: " + datasetDir.getName() + " is not a direcory. exiting now");
+                LOGGER.severe("File: " + datasetDir.getName() + " is not a direcory. exiting now");
                 System.exit(1);
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage() + ", exiting now.");
+            LOGGER.severe(e.getMessage() + ", exiting now.");
             System.exit(1);
         } finally {
             fwdIndexer.closeIndexWriter();
@@ -517,10 +521,10 @@ public class SearchManager {
                     Duration duration;
                     try {
                         duration = DatatypeFactory.newInstance().newDuration(end_time - start_time);
-                        System.out.printf("queries processed: " + SearchManager.statusCounter + " time taken: %02dh:%02dm:%02ds", duration.getDays()* 24
-                                                + duration.getHours(), duration.getMinutes(), duration.getSeconds());
+                        LOGGER.info("queries processed: " + SearchManager.statusCounter +
+                        		String.format(" time taken: %02dh:%02dm:%02ds", duration.getDays()* 24
+                        		+ duration.getHours(), duration.getMinutes(), duration.getSeconds()));
                         start_time = end_time;
-                        System.out.println();
                     } catch (DatatypeConfigurationException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -529,7 +533,7 @@ public class SearchManager {
             }
             SearchManager.queryBlockQueue.put(queryBlock);
         } catch (ParseException e) {
-            System.out.println(e.getMessage()
+            LOGGER.severe(e.getMessage()
                     + " skiping to next bag");
             e.printStackTrace();
         }
@@ -541,7 +545,7 @@ public class SearchManager {
             File queryDirectory = this.getQueryDirectory();
             File[] queryFiles = this.getQueryFiles(queryDirectory);
             for (File queryFile : queryFiles) {
-                System.out.println("Query File: " + queryFile);
+            	LOGGER.info("Query File: " + queryFile);
                 String filename = queryFile.getName().replaceFirst("[.][^.]+$",
                         "");
                 try {
@@ -550,7 +554,7 @@ public class SearchManager {
                             + SearchManager.th / SearchManager.MUL_FACTOR + "/"
                             + filename + "clones_index_WITH_FILTER.txt", false);
                 } catch (IOException e) {
-                    System.out.println(e.getMessage() + " exiting");
+                    LOGGER.severe(e.getMessage() + " exiting");
                     System.exit(1);
                 }
                 BufferedReader br = this.getReader(queryFile);
@@ -570,18 +574,13 @@ public class SearchManager {
                                         duration = DatatypeFactory
                                                 .newInstance().newDuration(
                                                         end_time - start_time);
-                                        System.out
-                                                .printf("queries processed: "
+                                        LOGGER.info("queries processed: "
                                                         + SearchManager.statusCounter
-                                                        + " time taken: %02dh:%02dm:%02ds",
-                                                        duration.getDays()
-                                                                * 24
-                                                                + duration
-                                                                        .getHours(),
+                                                        + String.format(" time taken: %02dh:%02dm:%02ds",
+                                                        duration.getDays() * 24  + duration.getHours(),
                                                         duration.getMinutes(),
-                                                        duration.getSeconds());
+                                                        duration.getSeconds()));
                                         start_time = end_time;
-                                        System.out.println();
                                     } catch (DatatypeConfigurationException e) {
                                         // TODO Auto-generated catch block
                                         e.printStackTrace();
@@ -590,7 +589,7 @@ public class SearchManager {
                             }
                             SearchManager.queryBlockQueue.put(queryBlock);
                         } catch (ParseException e) {
-                            System.out.println(e.getMessage()
+                            LOGGER.severe(e.getMessage()
                                     + " skiping to next bag");
                             e.printStackTrace();
                         }
@@ -607,7 +606,7 @@ public class SearchManager {
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage() + "exiting");
+            LOGGER.severe(e.getMessage() + "exiting");
             System.exit(1);
         }
     }
@@ -626,7 +625,6 @@ public class SearchManager {
             e1.printStackTrace();
         }
         String dir = this.getRawDataPath();
-//        System.out.println("DIRECTORY IS****" + dir);
         TermSorter termSorter = new TermSorter();
         try {
 
@@ -637,7 +635,7 @@ public class SearchManager {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {
-            System.out.println("Error in Parsing: " + e.getMessage());
+            LOGGER.severe("Error in Parsing: " + e.getMessage());
             e.printStackTrace();
         }
         SearchManager.fwdSearcher = new CodeSearcher(this.fwdIndexDir, "id"); //changed this.fwdIndexDir from Util.FWD_INDEX_DIR // searches
@@ -668,7 +666,7 @@ public class SearchManager {
         if (!queryDir.isDirectory()) {
             throw new FileNotFoundException("directory not found.");
         } else {
-            System.out.println("Directory: " + queryDir.getName());
+        	LOGGER.info("Directory: " + queryDir.getName());
             return queryDir;
         }
     }

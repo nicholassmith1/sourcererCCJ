@@ -6,6 +6,8 @@ package indexbased;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
@@ -34,6 +36,11 @@ public class CodeSearcher {
     private IndexReader reader;
     private QueryParser queryParser;
     private String field;
+    
+    private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
+    static {
+    	LOGGER.setLevel(Level.WARNING);
+    }
 
     public CodeSearcher(String indexDir, String field) {
         this.field = field;
@@ -42,7 +49,7 @@ public class CodeSearcher {
             this.reader = DirectoryReader.open(FSDirectory.open(new File(
                     this.indexDir)));
         } catch (IOException e) {
-            System.out.println("cant get the reader to index dir, exiting, "
+            LOGGER.severe("cant get the reader to index dir, exiting, "
                     + indexDir);
             e.printStackTrace();
             System.exit(1);
@@ -57,9 +64,9 @@ public class CodeSearcher {
     public void search(QueryBlock queryBlock, TermSearcher termSearcher)
             throws IOException {
     	
-    	System.out.println("CodeSearcher:search " + this.indexDir + " " + this.field);
+    	LOGGER.info("CodeSearcher:search " + this.indexDir + " " + this.field);
     	for (Entry<String, TokenInfo> entry : queryBlock.getPrefixMap().entrySet()) {
-    		System.out.println(entry.getKey() + ", " + entry.getValue().toString());
+    		LOGGER.info(entry.getKey() + ", " + entry.getValue().toString());
     	}
     	
     	
@@ -84,7 +91,7 @@ public class CodeSearcher {
                 termsSeenInQuery += entry.getValue().getFrequency();
                 termSearcher.searchWithPosition(termsSeenInQuery);
             } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-                System.out.println("cannot parse " + e.getMessage());
+                LOGGER.severe("cannot parse " + e.getMessage());
             }
         }
     }
@@ -102,7 +109,7 @@ public class CodeSearcher {
              */
             this.searcher.search(query, result);
         } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-            System.out.println("cannot parse " + e.getMessage());
+            LOGGER.severe("cannot parse " + e.getMessage());
         }
         return result;
     }
@@ -119,7 +126,7 @@ public class CodeSearcher {
              */
             this.searcher.search(query, result);
         } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-            System.out.println("cannot parse " + e.getMessage());
+            LOGGER.severe("cannot parse " + e.getMessage());
         }
         return result;
     }

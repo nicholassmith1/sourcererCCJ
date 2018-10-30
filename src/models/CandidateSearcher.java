@@ -23,7 +23,7 @@ public class CandidateSearcher implements IListener, Runnable {
 
 	private void searchCandidates(QueryBlock queryBlock) throws IOException,
 			InterruptedException {
-		System.out.println("spin up searchCandidates");
+//		System.out.println("spin up searchCandidates");
 		
 		TermSearcher termSearcher = new TermSearcher();
 		SearchManager.searcher.search(queryBlock, termSearcher);
@@ -32,7 +32,7 @@ public class CandidateSearcher implements IListener, Runnable {
 		qc.termSearcher = termSearcher;
 		SearchManager.queryCandidatesQueue.put(qc);
 		
-		System.out.println("spin down searchCandidates");
+//		System.out.println("spin down searchCandidates");
 	}
 
 }

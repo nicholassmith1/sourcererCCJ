@@ -56,10 +56,12 @@ public class CyClone implements Callable<Void> {
 		private final PathMatcher matcher;
 		private final Parser parser;
 		private final String work_dir;
+		private final boolean debug;
 		
-		public SourceWalker(Parser parser, String work_dir) {
+		public SourceWalker(Parser parser, String work_dir, boolean debug) {
 			this.parser = parser;
 			this.work_dir = work_dir;
+			this.debug = debug;
 			
 			/*
 			 * FIXME - I only support java files!
@@ -77,7 +79,11 @@ public class CyClone implements Callable<Void> {
 			}
 			
 			/* Add partial index of all interesting files to the working directory */
-			System.out.println("++++++ " + file.toAbsolutePath().toString());
+			if (this.debug) {
+				System.out.println("generating partial index for "
+						+ file.toAbsolutePath().toString());
+			}
+			
 			try {
 				this.parser.printMethods(file.toString(), this.work_dir);
 			} catch (Exception e) {
@@ -157,17 +163,20 @@ public class CyClone implements Callable<Void> {
                         && SearchManager.queryCandidatesQueue.size() == 0
                         && SearchManager.verifyCandidateQueue.size() == 0
                         && SearchManager.reportCloneQueue.size() == 0) {
-                    System.out.println("shutting down QBQ, "
-                            + (System.currentTimeMillis()));
+                	if (debug)
+	                    System.out.println("shutting down QBQ, " + (System.currentTimeMillis()));
                     SearchManager.queryBlockQueue.shutdown();
-                    System.out.println("shutting down QCQ, "
-                            + System.currentTimeMillis());
+                    
+                    if (debug)
+	                    System.out.println("shutting down QCQ, " + System.currentTimeMillis());
                     SearchManager.queryCandidatesQueue.shutdown();
-                    System.out.println("shutting down VCQ, "
-                            + System.currentTimeMillis());
+                    
+                    if (debug)
+                    	System.out.println("shutting down VCQ, " + System.currentTimeMillis());
                     SearchManager.verifyCandidateQueue.shutdown();
-                    System.out.println("shutting down RCQ, "
-                            + System.currentTimeMillis());
+                    
+                    if (debug)
+                    	System.out.println("shutting down RCQ, " + System.currentTimeMillis());
                     SearchManager.reportCloneQueue.shutdown();
                     break;
                 } else {
@@ -236,7 +245,7 @@ public class CyClone implements Callable<Void> {
 		 * Generate or update the partial indices for all the files on the
 		 * search path.
 		 */
-		SourceWalker finder = new SourceWalker(p, this.work_dir);
+		SourceWalker finder = new SourceWalker(p, this.work_dir, this.debug);
 		Set<FileVisitOption> options = new HashSet<FileVisitOption>();
 		int depth;
 		
@@ -246,9 +255,7 @@ public class CyClone implements Callable<Void> {
 			depth = 1;
 		}
 		
-		for (String s : this.src_dir) {
-			
-			System.out.println("++ Testing " + s);
+		for (String s : this.src_dir) {			
 	        Files.walkFileTree(Paths.get(s), options, depth, finder);
 		}
     	
@@ -264,17 +271,20 @@ public class CyClone implements Callable<Void> {
                     && SearchManager.queryCandidatesQueue.size() == 0
                     && SearchManager.verifyCandidateQueue.size() == 0
                     && SearchManager.reportCloneQueue.size() == 0) {
-                System.out.println("shutting down QBQ, "
-                        + (System.currentTimeMillis()));
+            	if (debug)
+            		System.out.println("shutting down QBQ, " + (System.currentTimeMillis()));
                 SearchManager.queryBlockQueue.shutdown();
-                System.out.println("shutting down QCQ, "
-                        + System.currentTimeMillis());
+                
+                if (debug)
+                	System.out.println("shutting down QCQ, " + System.currentTimeMillis());
                 SearchManager.queryCandidatesQueue.shutdown();
-                System.out.println("shutting down VCQ, "
-                        + System.currentTimeMillis());
+                
+                if (debug)
+                	System.out.println("shutting down VCQ, " + System.currentTimeMillis());
                 SearchManager.verifyCandidateQueue.shutdown();
-                System.out.println("shutting down RCQ, "
-                        + System.currentTimeMillis());
+                
+                if (debug)
+                	System.out.println("shutting down RCQ, " + System.currentTimeMillis());
                 SearchManager.reportCloneQueue.shutdown();
                 break;
             } else {

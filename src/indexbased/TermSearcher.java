@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import models.CandidateSimInfo;
 
@@ -30,6 +32,11 @@ public class TermSearcher {
 	private Map<Long, CandidateSimInfo> simMap;
 	private int querySize;
 	private int computedThreshold;
+	
+	private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
+    static {
+    	LOGGER.setLevel(Level.WARNING);
+    }
 
 	public TermSearcher() {
 		this.simMap = new HashMap<Long, CandidateSimInfo>();
@@ -97,28 +104,28 @@ public class TermSearcher {
 								}
 							}else{
 								if(SearchManager.loggingMode.equals("D")){
-									System.out.println("docEnum is null, " + base + ", term: "+ this.searchTerm + Util.debug_thread());
+									LOGGER.severe("docEnum is null, " + base + ", term: "+ this.searchTerm + Util.debug_thread());
 								}
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
-							System.out.println("exception caught " + e.getMessage() + Util.debug_thread() + " search term:" + this.searchTerm);
+							LOGGER.severe("exception caught " + e.getMessage() + Util.debug_thread() + " search term:" + this.searchTerm);
 						}
 
 					}
 				}else{
 					if(SearchManager.loggingMode.equals("D")){
-						System.out.println("leaves are null, "+ this.searchTerm + Util.debug_thread());
+						LOGGER.severe("leaves are null, "+ this.searchTerm + Util.debug_thread());
 					}
 				}
 			}else{
 				if(SearchManager.loggingMode.equals("D")){
-					System.out.println("getContext is null, "+ this.searchTerm + Util.debug_thread());
+					LOGGER.severe("getContext is null, "+ this.searchTerm + Util.debug_thread());
 				}
 			}
 		}else{
 			if(SearchManager.loggingMode.equals("D")){
-				System.out.println("this.reader is null, "+ this.searchTerm + Util.debug_thread());
+				LOGGER.severe("this.reader is null, "+ this.searchTerm + Util.debug_thread());
 			}
 		}
 	}

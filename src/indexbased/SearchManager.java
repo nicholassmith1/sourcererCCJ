@@ -419,10 +419,11 @@ public class SearchManager {
 
         System.out.println(header);
         
-//        System.out.println(x);
-//        for (String s : this.searchResult) {
-//        	
-//        }
+        System.out.println("");
+        System.out.println("Discovered (" + SearchManager.clonePairsCount + ") clones:");
+        for (String s : this.searchResult) {
+        	System.out.println("\t" + s);
+        }
         
     }
     
@@ -460,11 +461,11 @@ public class SearchManager {
             File datasetDir = new File(this.rawDataDir);
 
             if (datasetDir.isDirectory()) {
-                System.out.println("Directory: " + datasetDir.getAbsolutePath());
+//                System.out.println("Directory: " + datasetDir.getAbsolutePath());
                 BufferedReader br = null;
                 for (File inputFile : datasetDir.listFiles()) {
                     try {
-                        System.out.println("indexing file : " + inputFile.getAbsolutePath());
+//                        System.out.println("indexing file : " + inputFile.getAbsolutePath());
                         br = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "UTF-8"));
                         String line;
                         while ((line = br.readLine()) != null && line.trim().length() > 0) {
@@ -625,7 +626,7 @@ public class SearchManager {
             e1.printStackTrace();
         }
         String dir = this.getRawDataPath();
-        System.out.println("DIRECTORY IS****" + dir);
+//        System.out.println("DIRECTORY IS****" + dir);
         TermSorter termSorter = new TermSorter();
         try {
 

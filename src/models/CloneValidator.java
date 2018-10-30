@@ -23,7 +23,7 @@ public class CloneValidator implements IListener, Runnable {
             throws InterruptedException {
     	
     	
-    	System.out.println("_________________ CloneValidator");
+//    	System.out.println("_________________ CloneValidator");
     	
     	
         if (candidatePair.candidateTokens != null
@@ -34,7 +34,7 @@ public class CloneValidator implements IListener, Runnable {
                     candidatePair.candidateSize, candidatePair.simInfo);
             
             
-            System.out.println("simularity = " + similarity);
+//            System.out.println("simularity = " + similarity);
             
             if (similarity > 0) {
                 ClonePair cp = new ClonePair(candidatePair.queryBlock.getId(),

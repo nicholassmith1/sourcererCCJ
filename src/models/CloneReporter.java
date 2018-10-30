@@ -18,17 +18,16 @@ public class CloneReporter implements IListener, Runnable {
 	}
 
 	private void reportClone(ClonePair cp) {
-		System.out.println("QBQ: "+ SearchManager.queryBlockQueue.size()+
-				", QCQ: "+ SearchManager.queryCandidatesQueue.size()+ 
-				", VCQ: "+ SearchManager.verifyCandidateQueue.size()+
-				", RCQ: "+ SearchManager.reportCloneQueue.size() );
+//		System.out.println("QBQ: "+ SearchManager.queryBlockQueue.size()+
+//				", QCQ: "+ SearchManager.queryCandidatesQueue.size()+ 
+//				", VCQ: "+ SearchManager.verifyCandidateQueue.size()+
+//				", RCQ: "+ SearchManager.reportCloneQueue.size() );
 		SearchManager.updateClonePairsCount(1);
-		
-		
 		
 		String text = cp.cid;
 		
-		System.out.println("CloneReporter " + text + " " + cp.qid);
+		/* TODO - might be usefule */
+//		System.out.println("CloneReporter " + text + " " + cp.qid);
 		
 		
 		SearchManager.searchResult.add(text); //added by - sarah

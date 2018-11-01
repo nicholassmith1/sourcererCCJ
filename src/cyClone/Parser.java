@@ -235,6 +235,10 @@ public class Parser {
 //			}
 //		}
 //	}
+	
+	public static String sterilizePath(String path) {
+    	return path.replace(File.separatorChar, '$');
+    }
 
 	
 	/**
@@ -246,7 +250,7 @@ public class Parser {
 	 */
 	public void printMethod(String classPath, String methodKey, String methodBody, String outputLocation) {
 		
-		String dataFileName = getFileName(classPath, methodKey);
+		String dataFileName = getFileName(Parser.sterilizePath(classPath), methodKey);
 		File file = new File(outputLocation + dataFileName);
 		
 //		System.out.println("write to " + outputLocation + dataFileName + ":: " + classPath + " :: " + methodKey);

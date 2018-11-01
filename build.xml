@@ -115,6 +115,7 @@
 	<target name="main" depends="clean, jar_search, jar_tokenizer"/>
 	-->
 	
-	<target name="cyclone" depends="clean, jar_cyclone"/>
+	<!-- <target name="cyclone" depends="clean, jar_cyclone"/> -->
+	<target name="cyclone" depends="jar_cyclone"/>
 
 </project>

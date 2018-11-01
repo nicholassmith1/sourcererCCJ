@@ -1,20 +1,19 @@
 package cyClone;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
 import static java.nio.file.FileVisitResult.*;
-import static java.nio.file.FileVisitOption.*;
 import java.util.*;
 
 import antlr.Utils;
@@ -37,6 +36,9 @@ public class CyClone implements Callable<Void> {
     @Option(names = {"-v", "--verbose"}, description = "verbosity")
     private boolean verbose;
     
+    @Option(names = {"-F"}, description = "force a refresh of partial file indices")
+    private boolean force_refresh;
+    
     @Option(names = {"-d", "--debug"}, description = "debug")
     private boolean debug;
     
@@ -45,22 +47,46 @@ public class CyClone implements Callable<Void> {
     
     
     private String work_dir = "/tmp/rawData/";
+    private String top_work_dir = "/tmp/"; // anything other than partial index files in "/tmp/rawData" causes crashes
     
+    private final static Logger LOGGER = Logger.getLogger(CyClone.class.getName());
+    static {
+    	LOGGER.setLevel(Level.WARNING);
+    }
     
 
     public static void main(String[] args) throws Exception {
         CommandLine.call(new CyClone(), args);
     }
     
+    /* TODO - relocate */
+	public static File[] get_cached_files(String work_dir, Path file) {
+		final String s = Parser.sterilizePath(file.toString());
+		
+		File f = new File(work_dir);
+		return f.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.split("#")[0].equals(s);
+			}
+		});
+	}
+    
 	static class SourceWalker extends SimpleFileVisitor<Path> {
 		private final PathMatcher matcher;
 		private final Parser parser;
 		private final String work_dir;
+		private final boolean force_update;
 		private final boolean debug;
 		
-		public SourceWalker(Parser parser, String work_dir, boolean debug) {
+		
+		private Set<String> visited = new HashSet<String>();
+		
+		public SourceWalker(Parser parser, String work_dir, 
+				boolean force_update, boolean debug) {
 			this.parser = parser;
 			this.work_dir = work_dir;
+			this.force_update = force_update;
 			this.debug = debug;
 			
 			/*
@@ -70,43 +96,71 @@ public class CyClone implements Callable<Void> {
                     .getPathMatcher("glob:" + "**.java");
 		}
 		
+		public Set<String> get_visited() {
+			return visited;
+		}
+		
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 			/* Early return for files that aren't processable */
 			if (!this.matcher.matches(file)) {
-				System.out.println(file.toAbsolutePath().toString() + " does not match");
+				LOGGER.warning(file.toAbsolutePath().toString() + " does not match");
 				return CONTINUE;
 			}
 			
+			/* Marked as visited */
+			visited.add(file.toString());
+			
 			/* Add partial index of all interesting files to the working directory */
-			if (this.debug) {
-				System.out.println("generating partial index for "
-						+ file.toAbsolutePath().toString());
+			LOGGER.fine("generating partial index for "
+					+ file.toAbsolutePath().toString());
+			
+			String s = Parser.sterilizePath(file.toString());
+			
+			boolean should_update = false;
+			
+//			Parser.getFileName(classPath, functionKey)
+//			System.out.println("<<< " + s);
+//			System.out.println("<<< " + file.toString());
+			
+			/*
+			 * Update the cached files if the source file has
+			 * changed more recently.
+			 */
+			long last_cache_touch = 0;
+			File[] cached_files = CyClone.get_cached_files(this.work_dir, file);
+			for (File b : cached_files) {
+//				System.out.println("++++ " + b.getAbsolutePath());
+				if (b.lastModified() > last_cache_touch) {
+					last_cache_touch = b.lastModified();
+				}
 			}
 			
-			try {
-				this.parser.printMethods(file.toString(), this.work_dir);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (file.toFile().lastModified() > last_cache_touch) {
+				LOGGER.fine("Need to update " + file.toString());
+				should_update = true;
+			}
+			should_update = should_update || this.force_update;
+			
+			if (should_update) {
+				/* 
+				 * Remove all cached files. They could represent
+				 * functions that have since been deleted.
+				 */
+				for (File b : cached_files) {
+					b.delete();
+				}
+				
+				try {
+					this.parser.printMethods(file.toString(), this.work_dir);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
 			return CONTINUE;
 		}
-
-//		// Invoke the pattern matching
-//		// method on each directory.
-//		@Override
-//		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-////			find(dir);
-//			return CONTINUE;
-//		}
-//
-//		@Override
-//		public FileVisitResult visitFileFailed(Path file, IOException exc) {
-//			System.err.println(exc);
-//			return CONTINUE;
-//		}
 	}
 
     /* NISM - try to find this clone */
@@ -189,6 +243,23 @@ public class CyClone implements Callable<Void> {
     }
     
     
+    private Set<String> get_prev_sources() throws Exception {
+    	FileInputStream fin = new FileInputStream(this.top_work_dir + File.separator + "prev_sources");
+    	ObjectInputStream ois = new ObjectInputStream(fin);
+    	return (Set<String>)ois.readObject();
+    }
+    
+    private void set_prev_sources(Set<String> sources) {
+    	try (FileOutputStream fout = new FileOutputStream(this.top_work_dir
+    				+ File.separator + "prev_sources", false);
+    			ObjectOutputStream oos = new ObjectOutputStream(fout)) {
+
+    	    oos.writeObject(sources);
+    	} catch (Exception ex) {
+    	    ex.printStackTrace();
+    	}
+    }
+    
     @Override
     public Void call() throws Exception {
 //    	run_tests();
@@ -206,10 +277,8 @@ public class CyClone implements Callable<Void> {
     		throw new Exception("not supported");
 		}
     	
-    	if (this.debug) {
-    		System.out.println("Searching for " + t_file + " start="
-    				+ t_start + " end=" + t_end + ":");
-    	}
+    	LOGGER.fine("Searching for " + t_file + " start="
+    			+ t_start + " end=" + t_end + ":");
 
 		StringBuffer buffer = new StringBuffer();	
 		
@@ -242,10 +311,28 @@ public class CyClone implements Callable<Void> {
 		
 		
 		/*
+		 * Get all files that were previously visited searched. Any
+		 * that were searched last time that weren't searched this time
+		 * are stale and need to be removed to prevent false positives.
+		 */
+		Set<String> prev_visited;
+		try {
+			prev_visited = this.get_prev_sources();
+			for (String ss : prev_visited) {
+				LOGGER.finer("prev_visited = " + ss);
+			}
+		} catch (Exception ex) {
+			LOGGER.fine("Unable to determine prior execution source: recreating");
+			FileUtils.cleanDirectory(new File(this.work_dir));
+			prev_visited = new HashSet<String>();
+		}
+		
+		/*
 		 * Generate or update the partial indices for all the files on the
 		 * search path.
 		 */
-		SourceWalker finder = new SourceWalker(p, this.work_dir, this.debug);
+		SourceWalker finder = new SourceWalker(p, this.work_dir, 
+				this.force_refresh, this.debug);
 		Set<FileVisitOption> options = new HashSet<FileVisitOption>();
 		int depth;
 		
@@ -255,9 +342,29 @@ public class CyClone implements Callable<Void> {
 			depth = 1;
 		}
 		
+		/* Generate partial indices for source files */
 		for (String s : this.src_dir) {			
 	        Files.walkFileTree(Paths.get(s), options, depth, finder);
 		}
+		
+		/* Clean stale partial indices. */
+		Set<String> visited = finder.get_visited();
+		prev_visited.removeAll(visited);
+		prev_visited.forEach(new Consumer<String>() {
+			@Override
+			public void accept(String filename) {
+				File[] stale_files = CyClone.get_cached_files(work_dir,
+						Paths.get(filename));
+				
+				for (File f : stale_files) {
+					LOGGER.finer("TODO - MUST REMOVE FILE " + f.toString());
+					f.delete();
+				}
+			}
+		});
+		
+		/* Record all sources discovered this execution */
+		set_prev_sources(visited);
     	
     	SearchManager sm = new SearchManager("/tmp/");
     	sm.initIndexEnv();

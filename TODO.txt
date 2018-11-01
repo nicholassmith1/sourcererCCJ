@@ -11,3 +11,4 @@ X Implement target chunk specification
 
 BUGS:
 - repeated runs result of files that have been modified result in false positives (modified methods). Clean partial index files 
+- Cached partial indices won't be removed

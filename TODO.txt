@@ -5,10 +5,10 @@ X Implement target chunk specification
 - Make some actual test cases
 - Remove all unused code
 - The FileVisitor currently *only* supports .java files
-- The output is still grossly verbose, in useless ways
-- I should make partial indices only update as necessary
+X The output is still grossly verbose, in useless ways
+X I should make partial indices only update as necessary
 
 
 BUGS:
-- repeated runs result of files that have been modified result in false positives (modified methods). Clean partial index files 
-- Cached partial indices won't be removed
+X repeated runs result of files that have been modified result in false positives (modified methods). Clean partial index files 
+X Cached partial indices won't be removed

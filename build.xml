@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="CodeCloneDetection" basedir="." default="main">
+<project name="SourcererCCJ" basedir="." default="jar">
 
 	<property name="src.dir"     value="src"/>
 	<property name="build.dir"   value="build"/>
@@ -12,37 +12,15 @@
 		<delete dir="${build.dir}"/>
 		<delete dir="${jar.dir}"/>
 	</target>
-
-	<!--
-	<target name="compile_search">
-		<mkdir dir="${classes.dir}" />
-		<mkdir dir="${jar.dir}" />
-		<javac encoding="utf-8" source="1.7" target="1.7" debug="true" includeantruntime="false" sourcepath="" srcdir="${src.dir}" destdir="${classes.dir}">
-			<include name="indexbased/*.java" />
-			<include name="models/*.java" />
-			<include name="noindex/*.java" />
-			<include name="utility/*.java" />
-			<include name="validation/*.java" />
-			<include name="postprocessing/*.java" />
-			<classpath>
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
-	-->
 	
-	<target name="compile_cyclone">
+	<target name="compile">
 		<mkdir dir="${classes.dir}" />
 		<mkdir dir="${jar.dir}" />
 		<javac encoding="utf-8" source="1.8" target="1.8"
 				debug="true" includeantruntime="false"
 				sourcepath="" srcdir="${src.dir}"
 				destdir="${classes.dir}">
-			<include name="cyClone/CyClone.java" />
-			<include name="cyClone/Parser.java" />
-			<include name="astParser/Tokenizer.java" />
+			<include name="sourcerercc/*.java" />
 			
 			<include name="antlr/*.java" />
 			<include name="antlr/grammar/*.java" />
@@ -51,7 +29,6 @@
 			<include name="models/*.java" />
 			<include name="noindex/*.java" />
 			<include name="utility/*.java" />
-			<include name="validation/*.java" />
 			<include name="postprocessing/*.java" />
 			
 			<classpath>
@@ -62,31 +39,7 @@
 		</javac>
 	</target>
 
-	<!--
-	<target name="compile_cyclone">
-		<mkdir dir="${classes.dir}" />
-		<mkdir dir="${jar.dir}" />
-		<javac encoding="utf-8" source="1.7" target="1.7" debug="true" includeantruntime="false" sourcepath="" srcdir="${src.dir}" destdir="${classes.dir}">
-			<include name="cyClone/CyClone.java" />
-			<classpath>
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
-
-	<target name="jar_search" depends="compile_search">
-		<mkdir dir="${jar.dir}"/>
-		<jar destfile="${jar.dir}/search.jar" basedir="${classes.dir}">
-			<manifest>
-				<attribute name="Main-Class" value="validation.TestGson"/>
-			</manifest>
-		</jar>
-	</target>
-	-->
-
-	<target name="jar_cyclone" depends="compile_cyclone">
+	<target name="jar" depends="compile">
 		<mkdir dir="${jar.dir}"/>
 		<jar destfile="${jar.dir}/CyClone.jar" basedir="${classes.dir}">
 			<zipgroupfileset dir="${lib}" includes="**/*.jar" />
@@ -96,29 +49,5 @@
 		</jar>
 	</target>
 
-	<!--
-	<target name="jar_cyclone" depends="compile_cyclone">
-		<mkdir dir="${jar.dir}" />
-		<jar destfile="${jar.dir}/CyClone.jar" basedir="${classes.dir}">
-			<zipgroupfileset dir="${lib}" includes="**/*.jar" />
-			<manifest>
-				<attribute name="Main-Class" value="cyClone.CyClone" />
-			</manifest>
-		</jar>
-	</target>
-	-->
-
-	<!--
-	<target name="runTest" depends="jar_search">
-		<java jar="${jar.dir}/tokenizer.jar" fork="true"/>
-	</target>
-	-->
-
-	<!--
-	<target name="main" depends="clean, jar_search, jar_tokenizer"/>
-	-->
-	
-	<!-- <target name="cyclone" depends="clean, jar_cyclone"/> -->
-	<target name="cyclone" depends="jar_cyclone"/>
-
+	<target name="sourcerercc" depends="jar"/>
 </project>

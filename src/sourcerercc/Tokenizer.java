@@ -1,7 +1,7 @@
 /**
  * 
  */
-package astParser;
+package sourcerercc;
 
 import java.util.ArrayList;
 import java.util.List;

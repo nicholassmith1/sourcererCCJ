@@ -37,11 +37,15 @@
 				</fileset>
 			</classpath>
 		</javac>
+		<mkdir dir="build/classes/META-INF"/>
+		<mkdir dir="build/classes/META-INF/services"/>
+		<copy file="src/META-INF/services/cyclone.core.spi.CloneDetectorService"
+				todir="build/classes/META-INF/services"/>
 	</target>
 
 	<target name="jar" depends="compile">
 		<mkdir dir="${jar.dir}"/>
-		<jar destfile="${jar.dir}/CyClone.jar" basedir="${classes.dir}">
+		<jar destfile="${jar.dir}/sourcerercc.jar" basedir="${classes.dir}">
 			<zipgroupfileset dir="${lib}" includes="**/*.jar" />
 			<manifest>
 				<attribute name="Main-Class" value="cyClone.CyClone"/>

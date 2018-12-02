@@ -38,7 +38,7 @@ public class CloneValidator implements IListener, Runnable {
             
             if (similarity > 0) {
                 ClonePair cp = new ClonePair(candidatePair.queryBlock.getId(),
-                        candidatePair.candidateId);
+                        candidatePair.candidateId, similarity, 0 /* TODO - add in time calculation */);
                 SearchManager.reportCloneQueue.put(cp);
             }
             candidatePair.queryBlock = null;

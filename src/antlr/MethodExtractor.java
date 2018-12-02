@@ -18,7 +18,7 @@ public class MethodExtractor {
 		map.put("JAVA", new JavaMethodExtractor());
 		map.put("java", new JavaMethodExtractor());
 		
-		Collections.unmodifiableMap(map);
+		parsers = Collections.unmodifiableMap(map);
 	}
 	
 	private MethodExtractor() {

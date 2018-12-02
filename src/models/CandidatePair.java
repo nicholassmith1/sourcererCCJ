@@ -7,6 +7,7 @@ public class CandidatePair {
 	int computedThreshold;
 	int candidateSize;
 	String candidateId; // changed from long to string - Sarah
+//	long
 	
 	public CandidatePair(QueryBlock queryBlock, String candidateTokens,
 			CandidateSimInfo simInfo, int computedThreshold, int candidateSize, String candidateId) {

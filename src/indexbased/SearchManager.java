@@ -34,6 +34,8 @@ import org.apache.lucene.index.TieredMergePolicy;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
+import cyclone.core.spi.CloneListener;
+import cyclone.core.spi.CloneSearch;
 import models.Bag;
 import models.CandidatePair;
 import models.CandidateProcessor;
@@ -123,12 +125,15 @@ public class SearchManager {
     public static int printAfterEveryXQueries;
     public static String loggingMode;
     
+    private CloneSearch spec;
+    private CloneListener cloneListener;
+    
     private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
     static {
     	LOGGER.setLevel(Level.WARNING);
     }
 
-    public SearchManager(String baseDir) throws IOException {
+    public SearchManager(String baseDir, CloneSearch spec, CloneListener cloneListener) throws IOException {
         SearchManager.clonePairsCount = 0;
         this.cloneHelper = new CloneHelper();
         this.timeSpentInProcessResult = 0;
@@ -152,6 +157,10 @@ public class SearchManager {
         this.qcq_size = QCQ_SIZE;
         this.vcq_size = VCQ_SIZE;
         this.rcq_size = RCQ_SIZE;
+        
+        this.spec = spec;
+        this.cloneListener = cloneListener;
+        
         LOGGER.info("acton: " + this.action + System.lineSeparator()
                 + "threshold: " + threshold + System.lineSeparator()
                 + "QBQ_THREADS: " + this.qbq_thread_count + ", QBQ_SIZE: "
@@ -207,7 +216,7 @@ public class SearchManager {
             } else if (ListenerType == CANDIDATE_SEARCHER) {
                 listener = new CandidateSearcher();
             } else if (ListenerType == CLONE_REPORTER) {
-                listener = new CloneReporter();
+                listener = new CloneReporter(spec, cloneListener);
             } else if (ListenerType == CLONE_VALIDATOR) {
                 listener = new CloneValidator();
             }
@@ -231,127 +240,6 @@ public class SearchManager {
     public List<String> getResultFileList() {
     	return this.searchResult;
     }
-    
-    // TODO - NISM FIXME
-    public static void main(String[] args) throws IOException, ParseException,
-            InterruptedException {
-        long start_time = System.currentTimeMillis();
-        SearchManager searchManager = null;
-        Properties properties = new Properties();
-        FileInputStream fis = null;
-        LOGGER.info("reading Q values from properties file");
-        fis = new FileInputStream("sourcerer-cc.properties");
-        try {
-            properties.load(fis);
-            String[] params = new String[10];
-            params[0] = args[0];
-            params[1] = args[1];
-            params[2] = properties.getProperty("QBQ_THREADS");
-            params[3] = properties.getProperty("QCQ_THREADS");
-            params[4] = properties.getProperty("VCQ_THREADS");
-            params[5] = properties.getProperty("RCQ_THREADS");
-            params[6] = properties.getProperty("QBQ_SIZE");
-            params[7] = properties.getProperty("QCQ_SIZE");
-            params[8] = properties.getProperty("VCQ_SIZE");
-            params[9] = properties.getProperty("RCQ_SIZE");
-            searchManager = new SearchManager(params[0]);  // NISM - this was broken and preventing compilation, just picked a string
-        } catch (IOException e) {
-            LOGGER.severe("ERROR READING PROPERTIES FILE, "
-                    + e.getMessage());
-            System.exit(1);
-        } finally {
-            SearchManager.QUERY_DIR_PATH = properties
-                    .getProperty("QUERY_DIR_PATH");
-            SearchManager.DATASET_DIR = properties
-                    .getProperty("DATASET_DIR_PATH");
-            SearchManager.isGenCandidateStats = Boolean.parseBoolean(properties
-                    .getProperty("IS_GEN_CANDIDATE_STATISTICS"));
-            SearchManager.isStatusCounterOn = Boolean.parseBoolean(properties
-                    .getProperty("IS_STATUS_REPORTER_ON"));
-            SearchManager.printAfterEveryXQueries = Integer
-                    .parseInt(properties
-                            .getProperty("PRINT_STATUS_AFTER_EVERY_X_QUERIES_ARE_PROCESSED"));
-            SearchManager.loggingMode = properties.getProperty("LOGGING_MODE")
-                    .toUpperCase();
-            if (null != fis) {
-                fis.close();
-            }
-        }
-        Util.createDirs("output" + SearchManager.th / SearchManager.MUL_FACTOR);
-        String reportFileName = "output" + SearchManager.th
-                / SearchManager.MUL_FACTOR + "/report.csv";
-        File reportFile = new File(reportFileName);
-        if (reportFile.exists()) {
-            searchManager.appendToExistingFile = true;
-        } else {
-            searchManager.appendToExistingFile = false;
-        }
-        searchManager.outputWriter = Util.openFile(reportFileName,
-                searchManager.appendToExistingFile);
-        if (searchManager.action.equalsIgnoreCase(ACTION_INDEX)) {
-            searchManager.initIndexEnv();
-            long begin_time = System.currentTimeMillis();
-            searchManager.doIndex();
-            searchManager.timeIndexing = System.currentTimeMillis()
-                    - begin_time;
-        } else if (searchManager.action.equalsIgnoreCase(ACTION_SEARCH)) {
-            searchManager.initSearchEnv();
-            long timeStartSearch = System.currentTimeMillis();
-            searchManager.findCandidates();
-            while (true) {
-                if (SearchManager.queryBlockQueue.size() == 0
-                        && SearchManager.queryCandidatesQueue.size() == 0
-                        && SearchManager.verifyCandidateQueue.size() == 0
-                        && SearchManager.reportCloneQueue.size() == 0) {
-                	LOGGER.info("shutting down QBQ, "
-                            + (System.currentTimeMillis()));
-                    SearchManager.queryBlockQueue.shutdown();
-                    LOGGER.info("shutting down QCQ, "
-                            + System.currentTimeMillis());
-                    SearchManager.queryCandidatesQueue.shutdown();
-                    LOGGER.info("shutting down VCQ, "
-                            + System.currentTimeMillis());
-                    SearchManager.verifyCandidateQueue.shutdown();
-                    LOGGER.info("shutting down RCQ, "
-                            + System.currentTimeMillis());
-                    SearchManager.reportCloneQueue.shutdown();
-                    break;
-                } else {
-                    Thread.sleep(2 * 1000);
-                }
-            }
-            searchManager.timeSearch = System.currentTimeMillis()
-                    - timeStartSearch;
-        }
-        long end_time = System.currentTimeMillis();
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis((end_time - start_time));
-        try {
-            Duration duration = DatatypeFactory.newInstance().newDuration(
-                    end_time - start_time);
-            LOGGER.info("Total run time " + String.format("%02dh:%02dm:%02ds",
-                  duration.getDays() * 24 + duration.getHours(),
-                  duration.getMinutes(), duration.getSeconds()));
-        } catch (DatatypeConfigurationException e1) {
-            e1.printStackTrace();
-        }
-        
-        /*
-         * System.out.println( "total run time: " + cal.get(Calendar.HOUR)+
-         * "::"+ cal.get(Calendar.MINUTE)+ "::"+ cal.get(Calendar.SECOND));
-         */
-        LOGGER.info("number of clone pairs detected: "
-                + SearchManager.clonePairsCount);
-        searchManager.timeTotal = end_time - start_time;
-        searchManager.genReport();
-        Util.closeOutputFile(searchManager.outputWriter);
-        try {
-            Util.closeOutputFile(SearchManager.clonesWriter);
-        } catch (Exception e) {
-            LOGGER.severe("exception caught in main " + e.getMessage());
-        }
-    }
-    
     
     // changed to public - sarah
     public void initIndexEnv() throws IOException, ParseException {

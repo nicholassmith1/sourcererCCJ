@@ -72,7 +72,9 @@ public class JavaMethodExtractor implements MethodExtractorI {
 			String key;
 			String value = stop.getInputStream().getText(new Interval(start.getStartIndex(), stop.getStopIndex()));
 
-			key = ctx.IDENTIFIER().getText();
+			/* NOTE! This critical step glooms on the line number of the function */
+			key = start.getLine() + "," + stop.getLine();
+//			key = ctx.IDENTIFIER().getText() + "#" + start.getLine() + "," + stop.getLine();
 			
 			/* TODO - maybe useful */
 //			System.out.println(key);

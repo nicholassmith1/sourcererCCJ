@@ -48,7 +48,6 @@ import models.Queue;
 import models.TokenInfo;
 import noindex.CloneHelper;
 import utility.Util;
-import validation.TestGson;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,7 +99,6 @@ public class SearchManager {
     private long timeTotal;
     private String action;
     private boolean appendToExistingFile;
-    TestGson testGson;
     private Writer cloneSiblingCountWriter;
     public static final Integer MUL_FACTOR = 100;
     int deletemeCounter = 0;

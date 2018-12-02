@@ -36,7 +36,10 @@
 	<target name="compile_cyclone">
 		<mkdir dir="${classes.dir}" />
 		<mkdir dir="${jar.dir}" />
-		<javac encoding="utf-8" source="1.7" target="1.7" debug="true" includeantruntime="false" sourcepath="" srcdir="${src.dir}" destdir="${classes.dir}">
+		<javac encoding="utf-8" source="1.8" target="1.8"
+				debug="true" includeantruntime="false"
+				sourcepath="" srcdir="${src.dir}"
+				destdir="${classes.dir}">
 			<include name="cyClone/CyClone.java" />
 			<include name="cyClone/Parser.java" />
 			<include name="astParser/Tokenizer.java" />

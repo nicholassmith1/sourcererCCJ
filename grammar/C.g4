@@ -925,6 +925,11 @@ PragmaDirective
         -> skip
     ;
 
+IncludeDirective
+    :   '#' Whitespace? 'include' Whitespace ~[\r\n]*
+        -> skip
+    ;
+
 Whitespace
     :   [ \t]+
         -> skip

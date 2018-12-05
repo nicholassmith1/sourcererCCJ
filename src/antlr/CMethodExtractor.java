@@ -61,7 +61,6 @@ public class CMethodExtractor implements MethodExtractorI {
 
 			/* NOTE! This critical step glooms on the line number of the function */
 			key = start.getLine() + "," + stop.getLine();
-//			key = ctx.IDENTIFIER().getText() + "#" + start.getLine() + "," + stop.getLine();
 			
 			methods.put(key, value);
 		}
@@ -87,13 +86,12 @@ public class CMethodExtractor implements MethodExtractorI {
 			ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker
 			ExtractMethodListener extractor = new ExtractMethodListener(parser);
 			walker.walk(extractor, tree); // initiate walk of tree with listener
-			
+
 			methods.putAll(extractor.getMethods());
 		} catch (FileNotFoundException e) {
 			;
 		} catch (IOException e) {
 			;
-//			e.printStackTrace();
 		}
 		
 		return methods;

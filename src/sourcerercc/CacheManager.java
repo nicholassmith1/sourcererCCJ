@@ -9,10 +9,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -23,7 +25,6 @@ public class CacheManager {
 	private final static Logger LOGGER = Logger.getLogger("sourcererCC");
     private final static String work_dir = "/tmp/rawData/";
     private final static String top_work_dir = "/tmp/"; // anything other than partial index files in "/tmp/rawData" causes crashes
-
     private static CacheManager instance = null;
     
     private CacheManager() {
@@ -88,13 +89,12 @@ public class CacheManager {
 			}
 		}
 		if (!canHandle) {
+			LOGGER.fine("Ignoring unhandled file "
+					+ file.toAbsolutePath().toString());
 			return;
 		}
 		
 		/* Add partial index of all interesting files to the working directory */
-		LOGGER.fine("generating partial index for "
-				+ file.toAbsolutePath().toString());
-		
 		boolean should_update = false;
 		
 		/*
@@ -104,15 +104,20 @@ public class CacheManager {
 		long last_cache_touch = 0;
 		File[] cached_files = get_cached_files(work_dir, file);
 		for (File b : cached_files) {
-//			System.out.println("++++ " + b.getAbsolutePath());
 			if (b.lastModified() > last_cache_touch) {
 				last_cache_touch = b.lastModified();
 			}
 		}
 		
 		if (file.toFile().lastModified() > last_cache_touch) {
-			LOGGER.fine("Need to update " + file.toString());
+			LOGGER.fine(file.toAbsolutePath().toString() + " is stale (" +
+					file.toFile().lastModified() + ", " +
+					last_cache_touch + ")");
 			should_update = true;
+		} else {
+			LOGGER.fine(file.toAbsolutePath().toString() + " is current (" +
+					file.toFile().lastModified() + ", " +
+					last_cache_touch + ")");
 		}
 		should_update = should_update || force_update;
 		
@@ -135,6 +140,8 @@ public class CacheManager {
 	}
 	
 	public void updatePartialIndices(Collection<String> source_files) throws IOException {
+		LOGGER.info("begin updatePartialIndices for " + source_files);
+		
 		/*
 		 * Get all files that were previously visited searched. Any
 		 * that were searched last time that weren't searched this time
@@ -147,13 +154,14 @@ public class CacheManager {
 				LOGGER.finer("prev_visited = " + ss);
 			}
 		} catch (Exception ex) {
-			LOGGER.fine("Unable to determine prior execution source: recreating");
+			LOGGER.warning("Unable to determine prior execution source: recreating");
 			FileUtils.cleanDirectory(new File(work_dir));
 			prev_visited = new HashSet<String>();
 		}
 		
 		/* Generate partial indices for source files */
-		for (String s : source_files) {			
+		for (String s : source_files) {
+			LOGGER.fine("checking if " + s + " needs an update");
 			updatePartialIndex(s, false);
 		}
 		
@@ -167,7 +175,8 @@ public class CacheManager {
 						Paths.get(filename));
 				
 				for (File f : stale_files) {
-					LOGGER.finer("TODO - MUST REMOVE FILE " + f.toString());
+					LOGGER.fine(f.toString() +
+							" no longer part of search set, removing");
 					f.delete();
 				}
 			}

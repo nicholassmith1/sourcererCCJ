@@ -7,11 +7,13 @@ package antlr;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class MethodExtractor {
 	
 	static Map<String, MethodExtractorI> parsers;
 	protected static MethodExtractor instance = null;
+	private final static Logger LOGGER = Logger.getLogger("SourcererCC");
 	
 	static {
 		Map<String, MethodExtractorI> map = new HashMap<String, MethodExtractorI>();
@@ -47,7 +49,9 @@ public class MethodExtractor {
 		
 		/* Chain or responsibility iterator */
 		for (Map.Entry<String, MethodExtractorI> entry : parsers.entrySet()) {
+			LOGGER.finest("Looking for method extractor for " + inputFile.toString() + " " + entry.getKey());
 			if (inputFile.endsWith("." + entry.getKey())) {
+				LOGGER.info("Extracting methods with " + entry.getValue());
 				methods.putAll(entry.getValue().getMethods(inputFile));
 				break;
 			}

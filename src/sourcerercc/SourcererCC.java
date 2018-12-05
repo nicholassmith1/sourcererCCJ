@@ -1,5 +1,6 @@
 package sourcerercc;
 
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.*;
@@ -14,7 +15,12 @@ public class SourcererCC implements CloneDetectorService {
     
     private final static Logger LOGGER = Logger.getLogger("sourcererCC");
     static {
-    	LOGGER.setLevel(Level.WARNING);
+    	LOGGER.setLevel(Level.OFF);
+    	
+    	ConsoleHandler handler = new ConsoleHandler();
+        // PUBLISH this level
+        handler.setLevel(Level.OFF);
+        LOGGER.addHandler(handler);
     }
     
     /* ------------------------------------------------------------------

@@ -17,6 +17,7 @@ public class MethodExtractor {
 		Map<String, MethodExtractorI> map = new HashMap<String, MethodExtractorI>();
 		map.put("JAVA", new JavaMethodExtractor());
 		map.put("java", new JavaMethodExtractor());
+		map.put("m", new MatlabMethodExtractor());
 		
 		parsers = Collections.unmodifiableMap(map);
 	}

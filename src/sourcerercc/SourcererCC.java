@@ -15,11 +15,11 @@ public class SourcererCC implements CloneDetectorService {
     
     private final static Logger LOGGER = Logger.getLogger("sourcererCC");
     static {
-    	LOGGER.setLevel(Level.OFF);
+    	LOGGER.setLevel(Level.FINE);
     	
     	ConsoleHandler handler = new ConsoleHandler();
         // PUBLISH this level
-        handler.setLevel(Level.OFF);
+        handler.setLevel(Level.FINE);
         LOGGER.addHandler(handler);
     }
     

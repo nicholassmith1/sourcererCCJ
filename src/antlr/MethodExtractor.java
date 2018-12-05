@@ -19,9 +19,19 @@ public class MethodExtractor {
 		Map<String, MethodExtractorI> map = new HashMap<String, MethodExtractorI>();
 		map.put("JAVA", new JavaMethodExtractor());
 		map.put("java", new JavaMethodExtractor());
+		
 		map.put("m", new MatlabMethodExtractor());
+		map.put("M", new MatlabMethodExtractor());
+		
 		map.put("c", new CMethodExtractor());
 		map.put("C", new CMethodExtractor());
+		map.put("h", new CMethodExtractor());
+		map.put("H", new CMethodExtractor());
+		
+		map.put("cpp", new CPPMethodExtractor());
+		map.put("CPP", new CPPMethodExtractor());
+		map.put("hpp", new CPPMethodExtractor());
+		map.put("HPP", new CPPMethodExtractor());
 		
 		parsers = Collections.unmodifiableMap(map);
 	}

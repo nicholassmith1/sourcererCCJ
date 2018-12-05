@@ -18,6 +18,8 @@ public class MethodExtractor {
 		map.put("JAVA", new JavaMethodExtractor());
 		map.put("java", new JavaMethodExtractor());
 		map.put("m", new MatlabMethodExtractor());
+		map.put("c", new CMethodExtractor());
+		map.put("C", new CMethodExtractor());
 		
 		parsers = Collections.unmodifiableMap(map);
 	}

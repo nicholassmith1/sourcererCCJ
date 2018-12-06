@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
@@ -73,9 +74,10 @@ public class PhpMethodExtractor implements MethodExtractorI {
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			
 			PhpLexer lexer = new PhpLexer(input);
+			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			PhpParser parser = new PhpParser(tokens);
-			// TODO - verify
+			parser.removeErrorListeners();
 			ParserRuleContext tree = parser.htmlDocument(); // parse
 			
 			ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker

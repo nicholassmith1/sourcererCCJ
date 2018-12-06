@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
@@ -56,7 +57,6 @@ public class MatlabMethodExtractor implements MethodExtractorI {
 
 			/* NOTE! This critical step glooms on the line number of the function */
 			key = start.getLine() + "," + stop.getLine();
-//			key = ctx.IDENTIFIER().getText() + "#" + start.getLine() + "," + stop.getLine();
 			
 			methods.put(key, value);
 		}
@@ -74,9 +74,11 @@ public class MatlabMethodExtractor implements MethodExtractorI {
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			
 			MATLABLexer lexer = new MATLABLexer(input);
+			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			MATLABParser parser = new MATLABParser(tokens);
-			// TODO - verify
+			parser.removeErrorListeners();
+			parser.removeErrorListeners();
 			ParserRuleContext tree = parser.file(); // parse
 			
 			ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker

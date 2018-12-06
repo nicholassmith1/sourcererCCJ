@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
@@ -73,9 +74,10 @@ public class JavaScriptMethodExtractor implements MethodExtractorI {
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			
 			JavaScriptLexer lexer = new JavaScriptLexer(input);
+			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			JavaScriptParser parser = new JavaScriptParser(tokens);
-			// TODO - verify
+			parser.removeErrorListeners();
 			ParserRuleContext tree = parser.program(); // parse
 			
 			ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
@@ -72,9 +73,10 @@ public class CPPMethodExtractor implements MethodExtractorI {
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			
 			CPP14Lexer lexer = new CPP14Lexer(input);
+			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			CPP14Parser parser = new CPP14Parser(tokens);
-			// TODO - verify
+			parser.removeErrorListeners();
 			ParserRuleContext tree = parser.translationunit(); // parse
 			
 			ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
@@ -47,50 +48,17 @@ public class JavaMethodExtractor implements MethodExtractorI {
 		/** Listen to matches of methodDeclaration */
 		@Override
 		public void enterMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-//			System.out.println(">>>>>>>>>>>>>>> Discovered method!");
-//			System.out.print(ctx.getStart().getText());
-//			
-//			System.out.println(">>>>>>>>>>>>>>>");
-////			System.out.print(ctx.toString());
-//			System.out.print(ctx.getText());
-			
+		
 			Token start = ctx.getStart();
 			Token stop = ctx.getStop();
-			
-//			System.out.println(start.getLine() + " " + start.getCharPositionInLine());
-//			System.out.println(stop.getLine() + " " + stop.getCharPositionInLine());
-			
-			
-			/* How do I translate a line number and char offset into file positions? */
-			
-//			// this works.
-//			System.out.println(stop.getInputStream().getText(new Interval(start.getStartIndex(), stop.getStopIndex())));
-			
-//			System.out.println(stop.getInputStream().getText(ctx.getSourceInterval()));
-			
 			
 			String key;
 			String value = stop.getInputStream().getText(new Interval(start.getStartIndex(), stop.getStopIndex()));
 
 			/* NOTE! This critical step glooms on the line number of the function */
 			key = start.getLine() + "," + stop.getLine();
-//			key = ctx.IDENTIFIER().getText() + "#" + start.getLine() + "," + stop.getLine();
-			
-			/* TODO - maybe useful */
-//			System.out.println(key);
+
 			methods.put(key, value);
-			
-			
-			
-			
-//			// need parser to get tokens
-//			TokenStream tokens = parser.getTokenStream();
-//			String type = "void";
-//			if (ctx.type() != null) {
-//				type = tokens.getText(ctx.type());
-//			}
-//			String args = tokens.getText(ctx.formalParameters());
-//			System.out.println("\t" + type + " " + ctx.Identifier() + args + ";");
 		}
 	}
 	
@@ -106,8 +74,10 @@ public class JavaMethodExtractor implements MethodExtractorI {
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			
 			JavaLexer lexer = new JavaLexer(input);
+			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			JavaParser parser = new JavaParser(tokens);
+			parser.removeErrorListeners();
 			ParserRuleContext tree = parser.compilationUnit(); // parse
 			 
 			ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker

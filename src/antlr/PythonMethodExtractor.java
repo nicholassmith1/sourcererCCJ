@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
@@ -74,8 +75,10 @@ public class PythonMethodExtractor implements MethodExtractorI {
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			
 			AltPython3Lexer lexer = new AltPython3Lexer(input);
+			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			AltPython3Parser parser = new AltPython3Parser(tokens);
+			parser.removeErrorListeners();
 			ParserRuleContext tree = parser.file_input(); // parse
 			
 			ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker

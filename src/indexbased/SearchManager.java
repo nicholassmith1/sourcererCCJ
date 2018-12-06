@@ -319,6 +319,9 @@ public class SearchManager {
         
     }
     
+    /* Hack to fix lucene lock corruption issue in 4.6 */
+    private static final Object INDEX_LOCK = new Object();
+    
     //changed to public - sarah
     public void doIndex() throws IOException, ParseException {
         KeywordAnalyzer keywordAnalyzer = new KeywordAnalyzer();
@@ -345,6 +348,7 @@ public class SearchManager {
         IndexWriter indexWriter;
         IndexWriter fwdIndexWriter = null;
         CodeIndexer fwdIndexer = null;
+        synchronized (INDEX_LOCK) {
         try {
             indexWriter = new IndexWriter(FSDirectory.open(new File(this.indexDir)), indexWriterConfig);
             this.indexer = new CodeIndexer(this.indexDir, indexWriter,cloneHelper, SearchManager.th);
@@ -386,11 +390,13 @@ public class SearchManager {
                 System.exit(1);
             }
         } catch (IOException e) {
+        	e.printStackTrace();
             LOGGER.severe(e.getMessage() + ", exiting now.");
             System.exit(1);
         } finally {
             fwdIndexer.closeIndexWriter();
             this.indexer.closeIndexWriter();
+        }
         }
     }
     

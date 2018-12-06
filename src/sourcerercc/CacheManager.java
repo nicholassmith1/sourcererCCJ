@@ -42,6 +42,10 @@ public class CacheManager {
 		final String s = Parser.sterilizePath(file.toAbsolutePath().normalize().toString());
 		
 		File f = new File(work_dir);
+		if (!f.exists()){
+			f.mkdir();
+		}
+		
 		return f.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {

@@ -47,10 +47,7 @@ public class Util {
     public static final String FWD_INDEX_DIR = "fwdindex";
     public static final String INDEX_DIR_NO_FILTER = "index_nofilter";
 
-    private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
-    static {
-    	LOGGER.setLevel(Level.WARNING);
-    }
+    private final static Logger LOGGER = Logger.getLogger("sourcererCC");
     
     /**
      * generates a random integer

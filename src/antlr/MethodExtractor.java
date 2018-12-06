@@ -39,6 +39,9 @@ public class MethodExtractor {
 		map.put("js", new JavaScriptMethodExtractor());
 		map.put("JS", new JavaScriptMethodExtractor());
 		
+		map.put("php", new PhpMethodExtractor());
+		map.put("PHP", new PhpMethodExtractor());
+		
 		parsers = Collections.unmodifiableMap(map);
 	}
 	

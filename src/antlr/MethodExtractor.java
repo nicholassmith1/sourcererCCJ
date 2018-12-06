@@ -33,6 +33,9 @@ public class MethodExtractor {
 		map.put("hpp", new CPPMethodExtractor());
 		map.put("HPP", new CPPMethodExtractor());
 		
+		map.put("py", new PythonMethodExtractor());
+		map.put("PY", new PythonMethodExtractor());
+		
 		parsers = Collections.unmodifiableMap(map);
 	}
 	

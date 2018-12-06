@@ -23,6 +23,7 @@ public class SearchHandler implements Runnable {
 	
 	public SearchHandler(CloneSearch spec, CloneListener listener,
 			CloneSearchStatusListener statusListener) {
+		
 		this.spec = spec;
 		this.listener = listener;
 		this.statusListener = statusListener;
@@ -75,32 +76,8 @@ public class SearchHandler implements Runnable {
     	sm.doIndex();
     	sm.initSearchEnv();
     	sm.findCandidates(prt_index.toString());
-    	
-    	while (true) {
-            if (SearchManager.queryBlockQueue.size() == 0
-                    && SearchManager.queryCandidatesQueue.size() == 0
-                    && SearchManager.verifyCandidateQueue.size() == 0
-                    && SearchManager.reportCloneQueue.size() == 0) {
-            	if (debug)
-            		System.out.println("shutting down QBQ, " + (System.currentTimeMillis()));
-                SearchManager.queryBlockQueue.shutdown();
-                
-                if (debug)
-                	System.out.println("shutting down QCQ, " + System.currentTimeMillis());
-                SearchManager.queryCandidatesQueue.shutdown();
-                
-                if (debug)
-                	System.out.println("shutting down VCQ, " + System.currentTimeMillis());
-                SearchManager.verifyCandidateQueue.shutdown();
-                
-                if (debug)
-                	System.out.println("shutting down RCQ, " + System.currentTimeMillis());
-                SearchManager.reportCloneQueue.shutdown();
-                break;
-            } else {
-                Thread.sleep(2 * 1000);
-            }
-        }
+    	/* Wait for everything to be processed. */
+    	sm.waitForCompletion();
     	/* Debug only */
 //    	sm.genReportV2();
 	}

@@ -74,7 +74,7 @@ public class CacheManager {
      * @param file
      * @param attrs
      */
-	public void updatePartialIndex(String source_file, boolean force_update) {
+	public synchronized void updatePartialIndex(String source_file, boolean force_update) {
 		Path file = new File(source_file).toPath();
 		
 		/* Check if the file type is something we can handle */
@@ -139,7 +139,7 @@ public class CacheManager {
 		}
 	}
 	
-	public void updatePartialIndices(Collection<String> source_files) throws IOException {
+	public synchronized void updatePartialIndices(Collection<String> source_files) throws IOException {
 		LOGGER.info("begin updatePartialIndices for " + source_files);
 		
 		/*

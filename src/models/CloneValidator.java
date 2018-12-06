@@ -7,10 +7,16 @@ import indexbased.SearchManager;
 
 public class CloneValidator implements IListener, Runnable {
 
+	private final SearchManager searchManager;
+	
+	public CloneValidator(SearchManager searchManager) {
+		this.searchManager = searchManager;
+	}
+	
     @Override
     public void run() {
         try {
-            CandidatePair candidatePair = SearchManager.verifyCandidateQueue
+            CandidatePair candidatePair = searchManager.verifyCandidateQueue
                     .remove();
             this.validate(candidatePair);
         } catch (NoSuchElementException e) {
@@ -21,10 +27,6 @@ public class CloneValidator implements IListener, Runnable {
 
     private void validate(CandidatePair candidatePair)
             throws InterruptedException {
-    	
-    	
-//    	System.out.println("_________________ CloneValidator");
-    	
     	
         if (candidatePair.candidateTokens != null
                 && candidatePair.candidateTokens.trim().length() > 0) {
@@ -39,7 +41,7 @@ public class CloneValidator implements IListener, Runnable {
             if (similarity > 0) {
                 ClonePair cp = new ClonePair(candidatePair.queryBlock.getId(),
                         candidatePair.candidateId, similarity, 0 /* TODO - add in time calculation */);
-                SearchManager.reportCloneQueue.put(cp);
+                searchManager.reportCloneQueue.put(cp);
             }
             candidatePair.queryBlock = null;
             candidatePair.simInfo = null;

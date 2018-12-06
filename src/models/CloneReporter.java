@@ -10,8 +10,10 @@ import indexbased.SearchManager;
 public class CloneReporter implements IListener, Runnable {
 	private final CloneSearch spec;
 	private final CloneListener cloneListener;
+	private final SearchManager searchManager;
 	
-	public CloneReporter(CloneSearch spec, CloneListener cloneListener) {
+	public CloneReporter(SearchManager searchManager, CloneSearch spec, CloneListener cloneListener) {
+		this.searchManager = searchManager;
 		this.cloneListener = cloneListener;
 		this.spec = spec;
 	}
@@ -19,7 +21,7 @@ public class CloneReporter implements IListener, Runnable {
 	@Override
 	public void run() {
 		try {
-			ClonePair cp = SearchManager.reportCloneQueue.remove();
+			ClonePair cp = searchManager.reportCloneQueue.remove();
 			this.reportClone(cp);
 		} catch (NoSuchElementException e) {
 		}
@@ -78,10 +80,10 @@ public class CloneReporter implements IListener, Runnable {
 			return;
 		}
 		
-		SearchManager.updateClonePairsCount(1);
+		searchManager.updateClonePairsCount(1);
 		
 		String text = cp.cid;
-		SearchManager.searchResult.add(text); //added by - sarah
+		searchManager.searchResult.add(text); //added by - sarah
 	}
 
 }

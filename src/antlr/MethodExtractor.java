@@ -56,14 +56,14 @@ public class MethodExtractor {
 		return instance;
 	}
 	
-	public String[] getSupportedExtensions() {
+	public synchronized String[] getSupportedExtensions() {
 		String[] rtn = new String[parsers.keySet().size()];
 		
 		parsers.keySet().toArray(rtn);
 		return rtn;
 	}
 	
-	public Map<String, String> getMethods(String inputFile) {
+	public synchronized Map<String, String> getMethods(String inputFile) {
 		HashMap<String, String> methods = new HashMap<>();
 		
 		/* Chain or responsibility iterator */

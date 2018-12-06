@@ -59,9 +59,9 @@ import java.util.logging.Logger;
  * 
  */
 public class SearchManager {
-    private static long clonePairsCount;
-    public static CodeSearcher searcher;
-    public static CodeSearcher fwdSearcher;
+    private long clonePairsCount;
+    public CodeSearcher searcher;
+    public CodeSearcher fwdSearcher;
     private CloneHelper cloneHelper;
     private static String QUERY_DIR_PATH;
     public static String DATASET_DIR;
@@ -85,18 +85,18 @@ public class SearchManager {
     private final static int QCQ_SIZE=5;
     private final static int VCQ_SIZE=5;
     private final static int RCQ_SIZE=5;
-    public static List<String> searchResult = new ArrayList<String>(); //added by - sarah
+    public List<String> searchResult = new ArrayList<String>(); //added by - sarah
     private String rawDataDir = "";
     private String indexDir = "";
     private String fwdIndexDir = "";
 
     private CodeIndexer indexer;
     private long timeSpentInProcessResult;
-    public static long timeSpentInSearchingCandidates;
+    public long timeSpentInSearchingCandidates;
     private long timeIndexing;
     private long timeGlobalTokenPositionCreation;
     private long timeSearch;
-    private static long numCandidates;
+    private long numCandidates;
     private Writer outputWriter;
     private long timeTotal;
     private String action;
@@ -106,11 +106,11 @@ public class SearchManager {
     int deletemeCounter = 0;
     private double ramBufferSizeMB;
     private long bagsSortTime;
-    public static Queue<QueryCandidates> queryCandidatesQueue;
-    public static Queue<QueryBlock> queryBlockQueue;
-    public static Queue<ClonePair> reportCloneQueue;
-    public static Queue<CandidatePair> verifyCandidateQueue;
-    public static Object lock = new Object();
+    public Queue<QueryCandidates> queryCandidatesQueue;
+    public Queue<QueryBlock> queryBlockQueue;
+    public Queue<ClonePair> reportCloneQueue;
+    public Queue<CandidatePair> verifyCandidateQueue;
+    public Object lock = new Object();
     private int qbq_thread_count;
     private int qcq_thread_count;
     private int vcq_thread_count;
@@ -119,10 +119,10 @@ public class SearchManager {
     private int qcq_size;
     private int vcq_size;
     private int rcq_size;
-    public static boolean isGenCandidateStats;
-    public static int statusCounter;
-    public static boolean isStatusCounterOn;
-    public static int printAfterEveryXQueries;
+    public boolean isGenCandidateStats;
+    public int statusCounter;
+    public boolean isStatusCounterOn;
+    public int printAfterEveryXQueries;
     public static String loggingMode;
     
     private CloneSearch spec;
@@ -134,21 +134,21 @@ public class SearchManager {
     }
 
     public SearchManager(String baseDir, CloneSearch spec, CloneListener cloneListener) throws IOException {
-        SearchManager.clonePairsCount = 0;
+        this.clonePairsCount = 0;
         this.cloneHelper = new CloneHelper();
         this.timeSpentInProcessResult = 0;
-        SearchManager.timeSpentInSearchingCandidates = 0;
+        this.timeSpentInSearchingCandidates = 0;
         this.timeIndexing = 0;
         this.timeGlobalTokenPositionCreation = 0;
         this.timeSearch = 0;
-        SearchManager.numCandidates = 0;
+        this.numCandidates = 0;
         this.timeTotal = 0;
         this.appendToExistingFile = true;
         this.ramBufferSizeMB = 1024 * 1;
         this.bagsSortTime = 0;
         this.action = ACTION_INDEX;
-        SearchManager.statusCounter = 0;
-        SearchManager.th = (threshold * SearchManager.MUL_FACTOR);
+        statusCounter = 0;
+        this.th = (threshold * SearchManager.MUL_FACTOR);
         this.qbq_thread_count = QBQ_THREADS;
         this.qcq_thread_count = QCQ_THREADS;
         this.vcq_thread_count = VCQ_THREADS;
@@ -171,31 +171,31 @@ public class SearchManager {
                 + System.lineSeparator() + "RCQ_THREADS: "
                 + this.rcq_thread_count + ", RCQ_SIZE: " + this.rcq_size
                 + System.lineSeparator());
-        SearchManager.queryBlockQueue = new Queue<QueryBlock>(
+        queryBlockQueue = new Queue<QueryBlock>(
                 this.qbq_thread_count, this.qbq_size);
-        SearchManager.queryCandidatesQueue = new Queue<QueryCandidates>(
+        queryCandidatesQueue = new Queue<QueryCandidates>(
                 this.qcq_thread_count, this.qcq_size);
-        SearchManager.verifyCandidateQueue = new Queue<CandidatePair>(
+        verifyCandidateQueue = new Queue<CandidatePair>(
                 this.vcq_thread_count, this.vcq_size);
-        SearchManager.reportCloneQueue = new Queue<ClonePair>(
+        reportCloneQueue = new Queue<ClonePair>(
                 this.rcq_thread_count, this.rcq_size);
 
         this.registerListeners(this.qbq_thread_count,
-                SearchManager.queryBlockQueue, CANDIDATE_SEARCHER);
+                queryBlockQueue, CANDIDATE_SEARCHER);
         this.registerListeners(this.qcq_thread_count,
-                SearchManager.queryCandidatesQueue, CANDIDATE_PROCESSOR);
+                queryCandidatesQueue, CANDIDATE_PROCESSOR);
         this.registerListeners(this.vcq_thread_count,
-                SearchManager.verifyCandidateQueue, CLONE_VALIDATOR);
+                verifyCandidateQueue, CLONE_VALIDATOR);
         this.registerListeners(this.rcq_thread_count,
-                SearchManager.reportCloneQueue, CLONE_REPORTER);
+                reportCloneQueue, CLONE_REPORTER);
         
         //initialized the parameters below:
         
         
-        SearchManager.isGenCandidateStats = false;
-        SearchManager.isStatusCounterOn = false;
-        SearchManager.printAfterEveryXQueries = 250;
-        SearchManager.loggingMode = "N";
+        isGenCandidateStats = false;
+        isStatusCounterOn = false;
+        printAfterEveryXQueries = 250;
+        loggingMode = "N";
         
         this.rawDataDir = baseDir + "rawData" + "/";
         this.indexDir = baseDir + Util.INDEX_DIR + "/";
@@ -212,13 +212,13 @@ public class SearchManager {
         for (int i = 0; i < nListeners; i++) {
             IListener listener = null;
             if (ListenerType == CANDIDATE_PROCESSOR) {
-                listener = new CandidateProcessor();
+                listener = new CandidateProcessor(this);
             } else if (ListenerType == CANDIDATE_SEARCHER) {
-                listener = new CandidateSearcher();
+                listener = new CandidateSearcher(this);
             } else if (ListenerType == CLONE_REPORTER) {
-                listener = new CloneReporter(spec, cloneListener);
+                listener = new CloneReporter(this, spec, cloneListener);
             } else if (ListenerType == CLONE_VALIDATOR) {
-                listener = new CloneValidator();
+                listener = new CloneValidator(this);
             }
             listeners.add(listener);
         }
@@ -270,11 +270,11 @@ public class SearchManager {
         }
         header += this.timeIndexing + ",";
         header += this.timeGlobalTokenPositionCreation + ",";
-        header += SearchManager.numCandidates + ",";
-        header += SearchManager.clonePairsCount + ",";
+        header += this.numCandidates + ",";
+        header += this.clonePairsCount + ",";
         header += this.timeTotal + ",";
         header += this.timeSearch + ",";
-        header += SearchManager.timeSpentInSearchingCandidates + ",";
+        header += this.timeSpentInSearchingCandidates + ",";
         header += this.timeSpentInProcessResult + ",";
         if (this.action.equalsIgnoreCase("index")) {
             header += this.action + ",";
@@ -297,11 +297,11 @@ public class SearchManager {
         }
         header += this.timeIndexing + ",";
         header += this.timeGlobalTokenPositionCreation + ",";
-        header += SearchManager.numCandidates + ",";
-        header += SearchManager.clonePairsCount + ",";
+        header += numCandidates + ",";
+        header += this.clonePairsCount + ",";
         header += this.timeTotal + ",";
         header += this.timeSearch + ",";
-        header += SearchManager.timeSpentInSearchingCandidates + ",";
+        header += this.timeSpentInSearchingCandidates + ",";
         header += this.timeSpentInProcessResult + ",";
         if (this.action.equalsIgnoreCase("index")) {
             header += this.action + ",";
@@ -312,7 +312,7 @@ public class SearchManager {
 
         LOGGER.info(header);
 
-        System.out.println("Discovered (" + SearchManager.clonePairsCount + ") clones:");
+        System.out.println("Discovered (" + this.clonePairsCount + ") clones:");
         for (String s : this.searchResult) {
         	System.out.println("\t" + s);
         }
@@ -400,14 +400,14 @@ public class SearchManager {
     	long start_time = System.currentTimeMillis();
         try {
         	QueryBlock queryBlock = this.getNextQueryBlock(query);
-            if (SearchManager.isStatusCounterOn) {
-                SearchManager.statusCounter += 1;
-                if ((SearchManager.statusCounter % SearchManager.printAfterEveryXQueries) == 0) {
+            if (isStatusCounterOn) {
+                statusCounter += 1;
+                if ((statusCounter % printAfterEveryXQueries) == 0) {
                     long end_time = System.currentTimeMillis();
                     Duration duration;
                     try {
                         duration = DatatypeFactory.newInstance().newDuration(end_time - start_time);
-                        LOGGER.info("queries processed: " + SearchManager.statusCounter +
+                        LOGGER.info("queries processed: " + statusCounter +
                         		String.format(" time taken: %02dh:%02dm:%02ds", duration.getDays()* 24
                         		+ duration.getHours(), duration.getMinutes(), duration.getSeconds()));
                         start_time = end_time;
@@ -417,7 +417,7 @@ public class SearchManager {
                     }
                 }
             }
-            SearchManager.queryBlockQueue.put(queryBlock);
+            queryBlockQueue.put(queryBlock);
         } catch (ParseException e) {
             LOGGER.severe(e.getMessage()
                     + " skiping to next bag");
@@ -451,9 +451,9 @@ public class SearchManager {
                             && line.trim().length() > 0) {
                         try {
                             queryBlock = this.getNextQueryBlock(line);
-                            if (SearchManager.isStatusCounterOn) {
-                                SearchManager.statusCounter += 1;
-                                if ((SearchManager.statusCounter % SearchManager.printAfterEveryXQueries) == 0) {
+                            if (isStatusCounterOn) {
+                                statusCounter += 1;
+                                if ((statusCounter % printAfterEveryXQueries) == 0) {
                                     long end_time = System.currentTimeMillis();
                                     Duration duration;
                                     try {
@@ -461,7 +461,7 @@ public class SearchManager {
                                                 .newInstance().newDuration(
                                                         end_time - start_time);
                                         LOGGER.info("queries processed: "
-                                                        + SearchManager.statusCounter
+                                                        + statusCounter
                                                         + String.format(" time taken: %02dh:%02dm:%02ds",
                                                         duration.getDays() * 24  + duration.getHours(),
                                                         duration.getMinutes(),
@@ -473,7 +473,7 @@ public class SearchManager {
                                     }
                                 }
                             }
-                            SearchManager.queryBlockQueue.put(queryBlock);
+                            queryBlockQueue.put(queryBlock);
                         } catch (ParseException e) {
                             LOGGER.severe(e.getMessage()
                                     + " skiping to next bag");
@@ -524,20 +524,20 @@ public class SearchManager {
             LOGGER.severe("Error in Parsing: " + e.getMessage());
             e.printStackTrace();
         }
-        SearchManager.fwdSearcher = new CodeSearcher(this.fwdIndexDir, "id"); //changed this.fwdIndexDir from Util.FWD_INDEX_DIR // searches
+        this.fwdSearcher = new CodeSearcher(this.fwdIndexDir, "id"); //changed this.fwdIndexDir from Util.FWD_INDEX_DIR // searches
                                                                                 // on
                                                                                 // fwd
                                                                                 // index
-        SearchManager.searcher = new CodeSearcher(this.indexDir, "tokens");
+        this.searcher = new CodeSearcher(this.indexDir, "tokens");
 
     }
 
-    public static synchronized void updateNumCandidates(int num) {
-        SearchManager.numCandidates += num;
+    public synchronized void updateNumCandidates(int num) {
+        numCandidates += num;
     }
 
-    public static synchronized void updateClonePairsCount(int num) {
-        SearchManager.clonePairsCount += num;
+    public synchronized void updateClonePairsCount(int num) {
+        clonePairsCount += num;
     }
 
     private BufferedReader getReader(File queryFile)
@@ -605,4 +605,33 @@ public class SearchManager {
         }
         return queryBlock;
     }
+
+    public void waitForCompletion() throws InterruptedException {
+    	/*
+    	 * FIXME - jesus christ this is bad. Basically this depends
+    	 * on the individual processors popping it off each respective
+    	 * queue, processing it, then jamming it back on the subsequent
+    	 * queue while this thread is sleeping. If the time was ever
+    	 * *just right*, we'd terminate early.
+    	 */
+    	while (true) {
+    		if (queryBlockQueue.size() == 0
+    				&& queryCandidatesQueue.size() == 0
+    				&& verifyCandidateQueue.size() == 0
+    				&& reportCloneQueue.size() == 0) {
+//    			System.out.println("shutting down QBQ, " + (System.currentTimeMillis()));
+    			queryBlockQueue.shutdown();
+//    			System.out.println("shutting down QCQ, " + System.currentTimeMillis());
+    			queryCandidatesQueue.shutdown();
+//    			System.out.println("shutting down VCQ, " + System.currentTimeMillis());
+    			verifyCandidateQueue.shutdown();
+//    			System.out.println("shutting down RCQ, " + System.currentTimeMillis());
+    			reportCloneQueue.shutdown();
+    			break;
+    		} else {
+    			Thread.sleep(2 * 1000);
+    		}
+    	}
+
+	}
 }

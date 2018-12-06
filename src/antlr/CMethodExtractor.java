@@ -18,12 +18,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import antlr.grammar.CBaseListener;
 import antlr.grammar.CLexer;
 import antlr.grammar.CParser;
-import antlr.grammar.JavaLexer;
-import antlr.grammar.JavaParser;
-import antlr.grammar.JavaParserBaseListener;
-import antlr.grammar.matlabBaseListener;
-import antlr.grammar.matlabLexer;
-import antlr.grammar.matlabParser;
 
 public class CMethodExtractor implements MethodExtractorI {
 	/***

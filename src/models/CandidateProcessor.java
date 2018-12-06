@@ -13,13 +13,19 @@ import indexbased.SearchManager;
 import indexbased.TermSearcher;
 
 public class CandidateProcessor implements IListener, Runnable {
+	
+	private final SearchManager searchManager;
+	
+	public CandidateProcessor(SearchManager searchManager) {
+		this.searchManager = searchManager;
+	}
 
     @Override
     public void run() {
         try {
             // System.out.println( "QCQ size: "+
             // SearchManager.queryCandidatesQueue.size() + Util.debug_thread());
-            QueryCandidates qc = SearchManager.queryCandidatesQueue.remove();
+            QueryCandidates qc = searchManager.queryCandidatesQueue.remove();
             this.processResultWithFilter(qc.termSearcher, qc.queryBlock);
         } catch (NoSuchElementException e) {
             // e.printStackTrace();
@@ -30,17 +36,17 @@ public class CandidateProcessor implements IListener, Runnable {
 
     }
 
-    private void processResultWithFilter(TermSearcher result, QueryBlock queryBlock) throws InterruptedException {
+    private void processResultWithFilter(TermSearcher result, QueryBlock queryBlock) throws InterruptedException {	
         // System.out.println("HERE, thread_id: " + Util.debug_thread() +
         // ", query_id "+ queryBlock.getId());
         Map<Long, CandidateSimInfo> codeBlockIds = result.getSimMap();
-        if (SearchManager.isGenCandidateStats) {
-            SearchManager.updateNumCandidates(codeBlockIds.size());
+        if (searchManager.isGenCandidateStats) {
+            searchManager.updateNumCandidates(codeBlockIds.size());
         }
         for (Entry<Long, CandidateSimInfo> entry : codeBlockIds.entrySet()) {
             Document doc = null;
             try {
-                doc = SearchManager.searcher.getDocument(entry.getKey());
+                doc = searchManager.searcher.getDocument(entry.getKey());
                 CandidateSimInfo simInfo = entry.getValue();
                 String candidateId = doc.get("id"); // changed to String from long
                 String functionIdCandidate = candidateId;
@@ -54,12 +60,13 @@ public class CandidateProcessor implements IListener, Runnable {
                 if (candidateSize > queryBlock.getSize()) {
                     newCt = Integer.parseInt(doc.get("ct"));
                 }
-                CustomCollectorFwdIndex collector = SearchManager.fwdSearcher
+                CustomCollectorFwdIndex collector = searchManager.fwdSearcher
                         .search(doc);
                 List<Integer> blocks = collector.getBlocks();
+                
                 if (!blocks.isEmpty()) {
                     if (blocks.size() == 1) {
-                        Document document = SearchManager.fwdSearcher
+                        Document document = searchManager.fwdSearcher
                                 .getDocument(blocks.get(0));
                         String tokens = document.get("tokens");
                         CandidatePair candidatePair = null;
@@ -68,7 +75,7 @@ public class CandidateProcessor implements IListener, Runnable {
                         } else {
                             candidatePair = new CandidatePair(queryBlock, tokens, simInfo, queryBlock.getComputedThreshold(), candidateSize, candidateId);
                         }
-                        SearchManager.verifyCandidateQueue.put(candidatePair);
+                        searchManager.verifyCandidateQueue.put(candidatePair);
                         entry = null;
                     } else {
                         System.out

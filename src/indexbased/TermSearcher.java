@@ -32,14 +32,16 @@ public class TermSearcher {
 	private Map<Long, CandidateSimInfo> simMap;
 	private int querySize;
 	private int computedThreshold;
+	private final SearchManager searchManager;
 	
 	private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
     static {
     	LOGGER.setLevel(Level.WARNING);
     }
 
-	public TermSearcher() {
+	public TermSearcher(SearchManager searchManager) {
 		this.simMap = new HashMap<Long, CandidateSimInfo>();
+		this.searchManager = searchManager;
 	}
 
 	public synchronized void searchWithPosition(int queryTermsSeen) {
@@ -79,7 +81,7 @@ public class TermSearcher {
 											+ docEnum.freq();
 									if (simInfo.candidateSize == 0) {
 										simInfo.candidateSize = Integer
-												.parseInt(SearchManager.searcher
+												.parseInt(searchManager.searcher
 														.getDocument(docId).get("size"));
 									}
 									

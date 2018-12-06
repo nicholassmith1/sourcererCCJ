@@ -7,11 +7,16 @@ import indexbased.SearchManager;
 import indexbased.TermSearcher;
 
 public class CandidateSearcher implements IListener, Runnable {
-
+	
+	private final SearchManager searchManager;
+	
+	public CandidateSearcher(SearchManager searchManager) {
+		this.searchManager = searchManager;
+	}
 	@Override
 	public void run() {
 		try {
-			QueryBlock queryBlock = SearchManager.queryBlockQueue.remove();
+			QueryBlock queryBlock = searchManager.queryBlockQueue.remove();
 			this.searchCandidates(queryBlock);
 		} catch (NoSuchElementException e) {
 		} catch (IOException e) {
@@ -25,12 +30,12 @@ public class CandidateSearcher implements IListener, Runnable {
 			InterruptedException {
 //		System.out.println("spin up searchCandidates");
 		
-		TermSearcher termSearcher = new TermSearcher();
-		SearchManager.searcher.search(queryBlock, termSearcher);
+		TermSearcher termSearcher = new TermSearcher(searchManager);
+		searchManager.searcher.search(queryBlock, termSearcher);
 		QueryCandidates qc = new QueryCandidates();
 		qc.queryBlock = queryBlock;
 		qc.termSearcher = termSearcher;
-		SearchManager.queryCandidatesQueue.put(qc);
+		searchManager.queryCandidatesQueue.put(qc);
 		
 //		System.out.println("spin down searchCandidates");
 	}

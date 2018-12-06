@@ -36,6 +36,9 @@ public class MethodExtractor {
 		map.put("py", new PythonMethodExtractor());
 		map.put("PY", new PythonMethodExtractor());
 		
+		map.put("js", new JavaScriptMethodExtractor());
+		map.put("JS", new JavaScriptMethodExtractor());
+		
 		parsers = Collections.unmodifiableMap(map);
 	}
 	

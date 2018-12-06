@@ -13,7 +13,7 @@ public class MethodExtractor {
 	
 	static Map<String, MethodExtractorI> parsers;
 	protected static MethodExtractor instance = null;
-	private final static Logger LOGGER = Logger.getLogger("SourcererCC");
+	private final static Logger LOGGER = Logger.getLogger("sourcererCC");
 	
 	static {
 		Map<String, MethodExtractorI> map = new HashMap<String, MethodExtractorI>();

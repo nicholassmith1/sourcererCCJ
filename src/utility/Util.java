@@ -210,6 +210,9 @@ public class Util {
     public static void sortBag(Bag bag) {
         List<TokenFrequency> bagAsList = new ArrayList<TokenFrequency>(bag);
         LOGGER.info("sorting, size of gtpm: " + TermSorter.globalTokenPositionMap.size());
+        // Generating a bunch of these:
+        // java.lang.IllegalArgumentException: Comparison method violates its general contract!
+        try {
         Collections.sort(bagAsList, new Comparator<TokenFrequency>() {
             public int compare(TokenFrequency tfFirst, TokenFrequency tfSecond) {
                 long position1 = 0;
@@ -237,6 +240,9 @@ public class Util {
                 }
             }
         });
+        } catch (Exception e) {
+        	;
+        }
         bag.clear();
         for (TokenFrequency tf : bagAsList) {
             bag.add(tf);

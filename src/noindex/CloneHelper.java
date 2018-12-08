@@ -238,12 +238,14 @@ public class CloneHelper {
 								TermSorter.wordFreq.put(tokenStr,
 										Long.parseLong(tokenAndFreq[1]));
 							}
-
+							
 						} catch (ArrayIndexOutOfBoundsException e) {
 							System.out.println("EXCEPTION CAUGHT, token: "
 									+ tokenStr);
 							System.out.println("EXCEPTION CAUGHT: "
 									+ bagAndTokens[1]);
+						} catch (Exception e) {
+							;
 						}
 					}
 

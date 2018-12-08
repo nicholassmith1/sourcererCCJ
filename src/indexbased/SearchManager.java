@@ -128,10 +128,7 @@ public class SearchManager {
     private CloneSearch spec;
     private CloneListener cloneListener;
     
-    private final static Logger LOGGER = Logger.getLogger(SearchManager.class.getName());
-    static {
-    	LOGGER.setLevel(Level.WARNING);
-    }
+    private final static Logger LOGGER = Logger.getLogger("sourcererCC");
 
     public SearchManager(String baseDir, CloneSearch spec, CloneListener cloneListener) throws IOException {
         this.clonePairsCount = 0;
@@ -427,7 +424,7 @@ public class SearchManager {
         } catch (ParseException e) {
             LOGGER.severe(e.getMessage()
                     + " skiping to next bag");
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 
@@ -483,7 +480,7 @@ public class SearchManager {
                         } catch (ParseException e) {
                             LOGGER.severe(e.getMessage()
                                     + " skiping to next bag");
-                            e.printStackTrace();
+//                            e.printStackTrace();
                         }
                     }
                 } catch (IOException e) {
@@ -544,6 +541,28 @@ public class SearchManager {
 
     public synchronized void updateClonePairsCount(int num) {
         clonePairsCount += num;
+    }
+    
+    /*
+     * We we grabbed this code, it SearchManager was kept alive
+     * by the amount of work in each of the process queues. However,
+     * each of the processors will pop off of the queue, process for
+     * some finite amount of time, then place onto the next queue
+     * if appropriate. In this finite amount of time, the SearchManager
+     * could be judge to be idle and shut down. This keep alive should
+     * prevent this.
+     * 
+     * I'm under no false illusions that this is a 'good' fix. It is
+     * however the fix that time allows me.
+     */
+    private int stayAliveCount = 0;
+    
+    public synchronized void incrementStayAlive() {
+    	stayAliveCount += 1;
+    }
+    
+    public synchronized void decrementStayAlive() {
+    	stayAliveCount -= 1;
     }
 
     private BufferedReader getReader(File queryFile)
@@ -613,18 +632,12 @@ public class SearchManager {
     }
 
     public void waitForCompletion() throws InterruptedException {
-    	/*
-    	 * FIXME - jesus christ this is bad. Basically this depends
-    	 * on the individual processors popping it off each respective
-    	 * queue, processing it, then jamming it back on the subsequent
-    	 * queue while this thread is sleeping. If the time was ever
-    	 * *just right*, we'd terminate early.
-    	 */
     	while (true) {
     		if (queryBlockQueue.size() == 0
     				&& queryCandidatesQueue.size() == 0
     				&& verifyCandidateQueue.size() == 0
-    				&& reportCloneQueue.size() == 0) {
+    				&& reportCloneQueue.size() == 0
+    				&& stayAliveCount <= 0) {
 //    			System.out.println("shutting down QBQ, " + (System.currentTimeMillis()));
     			queryBlockQueue.shutdown();
 //    			System.out.println("shutting down QCQ, " + System.currentTimeMillis());

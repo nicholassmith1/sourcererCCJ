@@ -44,6 +44,20 @@ public class JavaMethodExtractor implements MethodExtractorI {
 		public HashMap<String, String> getMethods() {
 			return this.methods;
 		}
+		
+		@Override
+		public void enterConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
+			Token start = ctx.getStart();
+			Token stop = ctx.getStop();
+			
+			String key;
+			String value = stop.getInputStream().getText(new Interval(start.getStartIndex(), stop.getStopIndex()));
+
+			/* NOTE! This critical step glooms on the line number of the function */
+			key = start.getLine() + "," + stop.getLine();
+
+			methods.put(key, value);
+		}
 
 		/** Listen to matches of methodDeclaration */
 		@Override

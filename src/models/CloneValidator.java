@@ -15,6 +15,7 @@ public class CloneValidator implements IListener, Runnable {
 	
     @Override
     public void run() {
+    	searchManager.incrementStayAlive();
         try {
             CandidatePair candidatePair = searchManager.verifyCandidateQueue
                     .remove();
@@ -23,6 +24,7 @@ public class CloneValidator implements IListener, Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        searchManager.decrementStayAlive();
     }
 
     private void validate(CandidatePair candidatePair)

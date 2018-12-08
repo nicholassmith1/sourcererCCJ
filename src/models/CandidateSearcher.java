@@ -15,6 +15,7 @@ public class CandidateSearcher implements IListener, Runnable {
 	}
 	@Override
 	public void run() {
+		searchManager.incrementStayAlive();
 		try {
 			QueryBlock queryBlock = searchManager.queryBlockQueue.remove();
 			this.searchCandidates(queryBlock);
@@ -24,6 +25,7 @@ public class CandidateSearcher implements IListener, Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		searchManager.decrementStayAlive();
 	}
 
 	private void searchCandidates(QueryBlock queryBlock) throws IOException,

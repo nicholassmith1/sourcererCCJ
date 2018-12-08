@@ -20,12 +20,13 @@ public class CloneReporter implements IListener, Runnable {
 	
 	@Override
 	public void run() {
+		searchManager.incrementStayAlive();
 		try {
 			ClonePair cp = searchManager.reportCloneQueue.remove();
 			this.reportClone(cp);
 		} catch (NoSuchElementException e) {
 		}
-		
+		searchManager.decrementStayAlive();
 	}
 	
 	/* Tis very brittle. Expecting a serialized absolute file path
@@ -52,7 +53,8 @@ public class CloneReporter implements IListener, Runnable {
 	}
 
 	private void reportClone(ClonePair cp) {
-//		System.out.println("$$$$$$$$$$ qid=" + cp.qid + " cid=" + cp.cid);
+//		System.out.println(">>>>>>>> serach=" + spec.target_file + ":" +
+//				spec.start_line + ":" + spec.end_line + " cid=" + cp.cid);
 		
 		/* Extract the filePath and line numbers of the detect clone */
 		try {		

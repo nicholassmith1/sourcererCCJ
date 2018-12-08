@@ -22,6 +22,7 @@ public class CandidateProcessor implements IListener, Runnable {
 
     @Override
     public void run() {
+    	searchManager.incrementStayAlive();
         try {
             // System.out.println( "QCQ size: "+
             // SearchManager.queryCandidatesQueue.size() + Util.debug_thread());
@@ -33,7 +34,7 @@ public class CandidateProcessor implements IListener, Runnable {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        searchManager.decrementStayAlive();
     }
 
     private void processResultWithFilter(TermSearcher result, QueryBlock queryBlock) throws InterruptedException {	
